@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Fitora Gear",
+    "slug": "fitora-customer-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#6C5CE7"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#6C5CE7"
+      }
+    },
+    "plugins": [
+      "expo-status-bar"
+    ]
+  }
+}
