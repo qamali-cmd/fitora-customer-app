@@ -1,9 +1,11 @@
 // src/screens/ProductDetailScreen.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, TextInput, ActivityIndicator, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, TextInput, ActivityIndicator, Image, FlatList, Dimensions } from 'react-native';
 import API from '../api/config';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export default function ProductDetailScreen({ route, navigation }) {
   const { product } = route.params;
@@ -19,9 +21,24 @@ export default function ProductDetailScreen({ route, navigation }) {
   const [submitting, setSubmitting] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
+  // BAGO: gallery ng maraming larawan (harap, likod, gilid, atbp.)
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
   useEffect(() => {
     loadReviews();
+    loadGallery();
   }, []);
+
+  async function loadGallery() {
+    try {
+      const res = await fetch(`${API.PRODUCTS}/products/${product.product_id}/images`);
+      const data = await res.json();
+      setGalleryImages(data);
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   async function loadReviews() {
     try {
@@ -72,7 +89,31 @@ export default function ProductDetailScreen({ route, navigation }) {
 
   return (
     <ScrollView style={styles.container}>
-      {product.image ? (
+      {galleryImages.length > 0 ? (
+        <View>
+          <FlatList
+            data={galleryImages}
+            keyExtractor={item => String(item.image_id)}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={(e) => {
+              const index = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+              setActiveImageIndex(index);
+            }}
+            renderItem={({ item }) => (
+              <Image source={{ uri: item.image_url }} style={styles.carouselImage} resizeMode="cover" />
+            )}
+          />
+          {galleryImages.length > 1 && (
+            <View style={styles.dotsRow}>
+              {galleryImages.map((_, i) => (
+                <View key={i} style={[styles.dot, i === activeImageIndex && styles.dotActive]} />
+              ))}
+            </View>
+          )}
+        </View>
+      ) : product.image ? (
         <Image source={{ uri: product.image }} style={styles.imagePlaceholder} resizeMode="cover" />
       ) : (
         <View style={styles.imagePlaceholder}>
@@ -170,6 +211,10 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   imagePlaceholder: { backgroundColor: '#f0eefc', height: 260, alignItems: 'center', justifyContent: 'center' },
   imageEmoji: { fontSize: 80 },
+  carouselImage: { width: SCREEN_WIDTH, height: 260, backgroundColor: '#f0eefc' },
+  dotsRow: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 10 },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#ddd' },
+  dotActive: { backgroundColor: PRIMARY, width: 18 },
   content: { padding: 20 },
   category: { fontSize: 12, color: '#888', textTransform: 'uppercase', marginBottom: 4 },
   name: { fontSize: 22, fontWeight: 'bold', color: '#2B2140', marginBottom: 6 },
