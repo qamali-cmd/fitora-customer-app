@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, StyleSheet,
-  TextInput, ActivityIndicator, RefreshControl,
+  TextInput, ActivityIndicator, RefreshControl, Image,
 } from 'react-native';
 import API from '../api/config';
 import { useCart } from '../context/CartContext';
@@ -98,9 +98,13 @@ export default function HomeScreen({ navigation }) {
               style={styles.productCard}
               onPress={() => navigation.navigate('ProductDetail', { product: item })}
             >
-              <View style={styles.productImagePlaceholder}>
-                <Text style={styles.productImageEmoji}>🛍️</Text>
-              </View>
+              {item.image ? (
+                <Image source={{ uri: item.image }} style={styles.productImagePlaceholder} resizeMode="cover" />
+              ) : (
+                <View style={styles.productImagePlaceholder}>
+                  <Text style={styles.productImageEmoji}>🛍️</Text>
+                </View>
+              )}
               <Text style={styles.productName} numberOfLines={2}>{item.product_name}</Text>
               <Text style={styles.productPrice}>₱{Number(item.price).toLocaleString()}</Text>
             </TouchableOpacity>

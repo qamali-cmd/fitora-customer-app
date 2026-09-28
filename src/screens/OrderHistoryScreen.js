@@ -24,10 +24,7 @@ export default function OrderHistoryScreen({ navigation }) {
   async function loadOrders() {
     setError('');
     try {
-      const res = await fetch(`${API.ORDERS}/api/orders/my`, {
-  headers: { Authorization: `Bearer ${token}` },
-});
-
+      const res = await fetch(`${API.ORDERS}/orders/my`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
 
       // BAGO: sinisiguro nating array talaga ang laman bago i-display,

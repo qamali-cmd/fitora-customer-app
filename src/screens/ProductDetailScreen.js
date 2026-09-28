@@ -1,6 +1,6 @@
 // src/screens/ProductDetailScreen.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, TextInput, ActivityIndicator, Image } from 'react-native';
 import API from '../api/config';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -72,9 +72,13 @@ export default function ProductDetailScreen({ route, navigation }) {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.imagePlaceholder}>
-        <Text style={styles.imageEmoji}>🛍️</Text>
-      </View>
+      {product.image ? (
+        <Image source={{ uri: product.image }} style={styles.imagePlaceholder} resizeMode="cover" />
+      ) : (
+        <View style={styles.imagePlaceholder}>
+          <Text style={styles.imageEmoji}>🛍️</Text>
+        </View>
+      )}
 
       <View style={styles.content}>
         <Text style={styles.category}>{product.category_name || 'Uncategorized'}</Text>
