@@ -2048,3 +2048,4 @@
 {"_e":"devserver:start","_t":1792389475993,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
 {"_e":"metro:config","_t":1792389489410,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
 {"_e":"expo:dev-tools-plugin:load","_t":1792389495760,"plugins":[]}
+{"_e":"metro:instantiate","_t":1792389518259,"atlas":false,"workers":10,"host":"::","port":8081}
