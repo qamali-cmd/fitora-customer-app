@@ -2020,3 +2020,25 @@
 {"_e":"metro:bundling:progress","_t":1790386187694,"id":"1","progress":0.999,"total":932,"current":932}
 {"_e":"metro:bundling:progress","_t":1790386187852,"id":"1","progress":0.999,"total":935,"current":935}
 {"_e":"metro:bundling:done","_t":1790386188681,"id":"1","total":935,"ms":17820.6304}
+{"_e":"root:init","_t":1790601071849,"format":"v0-jsonl","version":"57.0.26"}
+{"_e":"env:mode","_t":1790601071871,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1790601071894,"mode":"development","files":[],"env":{}}
+{"_e":"devserver:start","_t":1790601079709,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1790601089579,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"expo:dev-tools-plugin:load","_t":1790601093744,"plugins":[]}
+{"_e":"metro:instantiate","_t":1790601107335,"atlas":false,"workers":10,"host":"::","port":8081}
+{"_e":"metro:bundling:started","_t":1790601156749,"id":"1","platform":"ios","environment":null,"entry":"node_modules\\expo\\AppEntry.js"}
+{"_e":"metro:bundling:progress","_t":1790601156750,"id":"1","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1790601156756,"id":"1","progress":0,"total":1,"current":0}
+{"_e":"metro:bundling:progress","_t":1790601156855,"id":"1","progress":0.015625,"total":160,"current":20}
+{"_e":"metro:bundling:progress","_t":1790601156955,"id":"1","progress":0.15751941740223166,"total":257,"current":102}
+{"_e":"metro:bundling:progress","_t":1790601157057,"id":"1","progress":0.23653861547081748,"total":403,"current":196}
+{"_e":"metro:bundling:progress","_t":1790601157159,"id":"1","progress":0.30671597704475306,"total":576,"current":319}
+{"_e":"metro:bundling:progress","_t":1790601157258,"id":"1","progress":0.48355976331360945,"total":650,"current":452}
+{"_e":"metro:bundling:progress","_t":1790601157358,"id":"1","progress":0.6978499699199406,"total":735,"current":614}
+{"_e":"metro:bundling:progress","_t":1790601157458,"id":"1","progress":0.7875233963211302,"total":835,"current":741}
+{"_e":"metro:bundling:progress","_t":1790601157558,"id":"1","progress":0.8827160106790529,"total":893,"current":839}
+{"_e":"metro:bundling:progress","_t":1790601157663,"id":"1","progress":0.9978666672741293,"total":937,"current":936}
+{"_e":"metro:bundling:progress","_t":1790601162855,"id":"1","progress":0.999,"total":937,"current":937}
+{"_e":"metro:bundling:done","_t":1790601163127,"id":"1","total":937,"ms":6378.1367}
+{"_e":"metro:server_log","_t":1790601286044,"level":"error","data":["[timeout] connection terminated with Device for app='%s' on device='%s' after not responding for %s seconds.","host.exp.Exponent","iPhone","60"]}
