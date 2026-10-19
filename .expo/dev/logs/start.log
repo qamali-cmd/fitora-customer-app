@@ -2042,3 +2042,9 @@
 {"_e":"metro:bundling:progress","_t":1790601162855,"id":"1","progress":0.999,"total":937,"current":937}
 {"_e":"metro:bundling:done","_t":1790601163127,"id":"1","total":937,"ms":6378.1367}
 {"_e":"metro:server_log","_t":1790601286044,"level":"error","data":["[timeout] connection terminated with Device for app='%s' on device='%s' after not responding for %s seconds.","host.exp.Exponent","iPhone","60"]}
+{"_e":"root:init","_t":1792389466246,"format":"v0-jsonl","version":"57.0.26"}
+{"_e":"env:mode","_t":1792389466273,"nodeEnv":"development","babelEnv":"development","mode":"development"}
+{"_e":"env:load","_t":1792389466300,"mode":"development","files":[],"env":{}}
+{"_e":"devserver:start","_t":1792389475993,"mode":"development","web":true,"baseUrl":"","asyncRoutes":false,"routerRoot":"../..\\..\\app","serverComponents":false,"serverActions":false,"serverRendering":false,"apiRoutes":false,"exporting":false}
+{"_e":"metro:config","_t":1792389489410,"serverRoot":"../..\\..","projectRoot":"../..\\..","exporting":false,"flags":{"autolinkingModuleResolution":false,"serverActions":false,"serverComponents":false,"reactCompiler":false,"optimizeGraph":false,"treeshaking":false,"logbox":false}}
+{"_e":"expo:dev-tools-plugin:load","_t":1792389495760,"plugins":[]}
