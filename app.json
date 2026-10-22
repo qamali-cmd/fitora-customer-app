@@ -2,6 +2,7 @@
   "expo": {
     "name": "Fitora Gear",
     "slug": "fitora-customer-app",
+    "scheme": "fitoragear",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -20,7 +21,8 @@
       }
     },
     "plugins": [
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-web-browser"
     ]
   }
 }

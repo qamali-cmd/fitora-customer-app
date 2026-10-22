@@ -8,7 +8,7 @@ export default function CartScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Cart mo</Text>
+      <Text style={styles.title}>Your cart</Text>
 
       <FlatList
         data={items}
@@ -39,12 +39,12 @@ export default function CartScreen({ navigation }) {
               </TouchableOpacity>
             </View>
             <TouchableOpacity onPress={() => removeFromCart(item.product.product_id)}>
-              <Text style={styles.removeText}>Alisin</Text>
+              <Text style={styles.removeText}>Remove</Text>
             </TouchableOpacity>
           </View>
         )}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>Wala pang laman ang cart mo. Mag-browse ka muna!</Text>
+          <Text style={styles.emptyText}>Your cart is empty. Start browsing!</Text>
         }
       />
 
@@ -63,26 +63,26 @@ export default function CartScreen({ navigation }) {
   );
 }
 
-const PRIMARY = '#6C5CE7';
+const PRIMARY = '#fc408c';
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f4f5f7', paddingTop: 50 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#2B2140', paddingHorizontal: 16, marginBottom: 12 },
+  title: { fontSize: 22, fontWeight: 'bold', color: '#111111', paddingHorizontal: 16, marginBottom: 12 },
   list: { paddingHorizontal: 16 },
   cartItem: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
     borderRadius: 10, padding: 12, marginBottom: 10,
   },
   itemImagePlaceholder: {
-    width: 44, height: 44, borderRadius: 8, backgroundColor: '#f0eefc',
+    width: 44, height: 44, borderRadius: 8, backgroundColor: '#fff0f6',
     alignItems: 'center', justifyContent: 'center', marginRight: 10,
   },
   itemInfo: { flex: 1 },
-  itemName: { fontSize: 14, color: '#2B2140', marginBottom: 2 },
+  itemName: { fontSize: 14, color: '#111111', marginBottom: 2 },
   itemPrice: { fontSize: 13, color: PRIMARY, fontWeight: '600' },
   qtyControls: { flexDirection: 'row', alignItems: 'center', marginRight: 10 },
   qtyButton: {
-    width: 26, height: 26, borderRadius: 13, backgroundColor: '#f0eefc',
+    width: 26, height: 26, borderRadius: 13, backgroundColor: '#fff0f6',
     alignItems: 'center', justifyContent: 'center',
   },
   qtyButtonText: { fontSize: 15, color: PRIMARY, fontWeight: 'bold' },
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   emptyText: { textAlign: 'center', color: '#888', marginTop: 60, paddingHorizontal: 32 },
   footer: { backgroundColor: '#fff', padding: 16, borderTopWidth: 1, borderTopColor: '#eee' },
   totalRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
-  totalLabel: { fontSize: 16, color: '#2B2140' },
+  totalLabel: { fontSize: 16, color: '#111111' },
   totalValue: { fontSize: 18, fontWeight: 'bold', color: PRIMARY },
   checkoutButton: { backgroundColor: PRIMARY, padding: 16, borderRadius: 8, alignItems: 'center' },
   checkoutButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },

@@ -1,11 +1,44 @@
 // src/screens/ProductDetailScreen.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, TextInput, ActivityIndicator, Image, FlatList, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, TextInput, ActivityIndicator, Image, FlatList, Dimensions, Modal, Linking } from 'react-native';
 import API from '../api/config';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
+
+// Smaller or larger copies of a Cloudinary photo (so the list loads fast)
+function resizePhoto(url, size) {
+  return url.indexOf('/image/upload/') === -1 ? url : url.replace('/image/upload/', `/image/upload/${size}/`);
+}
+
+// One customer review, with its photos and video
+export function ReviewCard({ review, onOpenImage, onOpenVideo }) {
+  const media = review.media || [];
+  return (
+    <View style={styles.reviewCard}>
+      <View style={styles.reviewHeader}>
+        <Text style={styles.reviewerName}>{review.customer_name}</Text>
+        <Text style={styles.reviewStars}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</Text>
+      </View>
+      {review.comment ? <Text style={styles.reviewComment}>{review.comment}</Text> : null}
+      {media.length > 0 ? (
+        <View style={styles.mediaRow}>
+          {media.map((m, i) => (m.type === 'video' ? (
+            <TouchableOpacity key={i} style={styles.videoTile} onPress={() => onOpenVideo(m.url)}>
+              <Text style={styles.videoIcon}>▶</Text>
+              <Text style={styles.videoLabel}>Video</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity key={i} onPress={() => onOpenImage(m.url)}>
+              <Image source={{ uri: resizePhoto(m.url, 'c_fill,w_200,h_200,q_auto') }} style={styles.mediaThumb} />
+            </TouchableOpacity>
+          )))}
+        </View>
+      ) : null}
+    </View>
+  );
+}
 
 export default function ProductDetailScreen({ route, navigation }) {
   const { product } = route.params;
@@ -16,10 +49,7 @@ export default function ProductDetailScreen({ route, navigation }) {
   // BAGO: reviews
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
-  const [myRating, setMyRating] = useState(5);
-  const [myComment, setMyComment] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [viewerUrl, setViewerUrl] = useState(null); // the photo opened full size
 
   // BAGO: gallery ng maraming larawan (harap, likod, gilid, atbp.)
   const [galleryImages, setGalleryImages] = useState([]);
@@ -54,40 +84,18 @@ export default function ProductDetailScreen({ route, navigation }) {
 
   function handleAddToCart() {
     if (product.stock < quantity) {
-      Alert.alert('Kulang ang stock', `${product.stock} na lang ang natitira.`);
+      Alert.alert('Not enough stock', `Only ${product.stock} left.`);
       return;
     }
     addToCart(product, quantity);
-    Alert.alert('Nadagdag sa cart', `${quantity}x ${product.product_name}`, [
-      { text: 'Magpatuloy mamili', style: 'cancel' },
-      { text: 'Pumunta sa Cart', onPress: () => navigation.navigate('Cart') },
+    Alert.alert('Added to cart', `${quantity}x ${product.product_name}`, [
+      { text: 'Continue shopping', style: 'cancel' },
+      { text: 'Go to cart', onPress: () => navigation.navigate('Cart') },
     ]);
   }
 
-  async function handleSubmitReview() {
-    setSubmitting(true);
-    try {
-      const res = await fetch(`${API.PRODUCTS}/products/${product.product_id}/reviews`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ rating: myRating, comment: myComment.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        Alert.alert('Error', data.error || 'Hindi ma-submit ang review.');
-        return;
-      }
-      setReviewSubmitted(true);
-      setMyComment('');
-      Alert.alert('Salamat!', 'Nai-submit na ang review mo, hihintayin lang ang approval ng admin.');
-    } catch (err) {
-      Alert.alert('Error', 'Hindi ma-reach ang server.');
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
   return (
+    <View style={{ flex: 1 }}>
     <ScrollView style={styles.container}>
       {galleryImages.length > 0 ? (
         <View>
@@ -131,7 +139,7 @@ export default function ProductDetailScreen({ route, navigation }) {
         </Text>
 
         <Text style={styles.descriptionLabel}>Description</Text>
-        <Text style={styles.description}>{product.description || 'Walang description.'}</Text>
+        <Text style={styles.description}>{product.description || 'No description.'}</Text>
 
         <View style={styles.quantityRow}>
           <Text style={styles.quantityLabel}>Quantity</Text>
@@ -161,72 +169,52 @@ export default function ProductDetailScreen({ route, navigation }) {
           <Text style={styles.reviewsTitle}>Reviews ({reviews.length})</Text>
 
           {reviewsLoading ? (
-            <ActivityIndicator color="#6C5CE7" style={{ marginTop: 12 }} />
+            <ActivityIndicator color="#fc408c" style={{ marginTop: 12 }} />
           ) : reviews.length === 0 ? (
-            <Text style={styles.noReviews}>Wala pang review sa product na ito.</Text>
+            <Text style={styles.noReviews}>No reviews for this product yet.</Text>
           ) : (
             reviews.map(r => (
-              <View key={r.review_id} style={styles.reviewCard}>
-                <View style={styles.reviewHeader}>
-                  <Text style={styles.reviewerName}>{r.customer_name}</Text>
-                  <Text style={styles.reviewStars}>{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</Text>
-                </View>
-                {r.comment ? <Text style={styles.reviewComment}>{r.comment}</Text> : null}
-              </View>
+              <ReviewCard key={r.review_id} review={r} onOpenImage={setViewerUrl} onOpenVideo={(url) => Linking.openURL(url)} />
             ))
           )}
 
-          {/* Form para makapag-submit ng review (kailangan naka-login) */}
-          {customer && !reviewSubmitted && (
-            <View style={styles.writeReview}>
-              <Text style={styles.writeReviewTitle}>Mag-iwan ng review</Text>
-              <View style={styles.starPicker}>
-                {[1, 2, 3, 4, 5].map(n => (
-                  <TouchableOpacity key={n} onPress={() => setMyRating(n)}>
-                    <Text style={styles.starPickerStar}>{n <= myRating ? '★' : '☆'}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-              <TextInput
-                style={styles.reviewInput}
-                placeholder="Ano ang masasabi mo tungkol sa product na ito?"
-                value={myComment}
-                onChangeText={setMyComment}
-                multiline
-              />
-              <TouchableOpacity style={styles.submitReviewButton} onPress={handleSubmitReview} disabled={submitting}>
-                {submitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitReviewText}>Submit review</Text>}
-              </TouchableOpacity>
-            </View>
-          )}
+          <Text style={styles.reviewNote}>Only customers who received this product can write a review. Go to Orders to rate your purchases.</Text>
         </View>
       </View>
     </ScrollView>
+
+      <Modal visible={!!viewerUrl} transparent animationType="fade" onRequestClose={() => setViewerUrl(null)}>
+        <TouchableOpacity style={styles.viewerOverlay} activeOpacity={1} onPress={() => setViewerUrl(null)}>
+          {viewerUrl ? <Image source={{ uri: resizePhoto(viewerUrl, 'w_1000,q_auto') }} style={styles.viewerImage} resizeMode="contain" /> : null}
+          <Text style={styles.viewerClose}>Tap anywhere to close</Text>
+        </TouchableOpacity>
+      </Modal>
+    </View>
   );
 }
 
-const PRIMARY = '#6C5CE7';
+const PRIMARY = '#fc408c';
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  imagePlaceholder: { backgroundColor: '#f0eefc', height: 260, alignItems: 'center', justifyContent: 'center' },
+  imagePlaceholder: { backgroundColor: '#fff0f6', height: 260, alignItems: 'center', justifyContent: 'center' },
   imageEmoji: { fontSize: 80 },
-  carouselImage: { width: SCREEN_WIDTH, height: 260, backgroundColor: '#f0eefc' },
+  carouselImage: { width: SCREEN_WIDTH, height: 260, backgroundColor: '#fff0f6' },
   dotsRow: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 10 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#ddd' },
   dotActive: { backgroundColor: PRIMARY, width: 18 },
   content: { padding: 20 },
   category: { fontSize: 12, color: '#888', textTransform: 'uppercase', marginBottom: 4 },
-  name: { fontSize: 22, fontWeight: 'bold', color: '#2B2140', marginBottom: 6 },
+  name: { fontSize: 22, fontWeight: 'bold', color: '#111111', marginBottom: 6 },
   price: { fontSize: 20, fontWeight: 'bold', color: PRIMARY, marginBottom: 8 },
   stock: { fontSize: 13, color: '#888', marginBottom: 20 },
-  descriptionLabel: { fontSize: 14, fontWeight: '600', color: '#2B2140', marginBottom: 6 },
+  descriptionLabel: { fontSize: 14, fontWeight: '600', color: '#111111', marginBottom: 6 },
   description: { fontSize: 14, color: '#555', lineHeight: 20, marginBottom: 24 },
   quantityRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  quantityLabel: { fontSize: 14, color: '#2B2140', fontWeight: '600' },
+  quantityLabel: { fontSize: 14, color: '#111111', fontWeight: '600' },
   quantityControls: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   qtyButton: {
-    width: 32, height: 32, borderRadius: 16, backgroundColor: '#f0eefc',
+    width: 32, height: 32, borderRadius: 16, backgroundColor: '#fff0f6',
     alignItems: 'center', justifyContent: 'center',
   },
   qtyButtonText: { fontSize: 18, color: PRIMARY, fontWeight: 'bold' },
@@ -236,16 +224,25 @@ const styles = StyleSheet.create({
   addButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 
   reviewsSection: { marginTop: 32, borderTopWidth: 1, borderTopColor: '#eee', paddingTop: 20 },
-  reviewsTitle: { fontSize: 16, fontWeight: '600', color: '#2B2140', marginBottom: 12 },
+  reviewsTitle: { fontSize: 16, fontWeight: '600', color: '#111111', marginBottom: 12 },
   noReviews: { fontSize: 13, color: '#888' },
   reviewCard: { backgroundColor: '#f8f8fa', borderRadius: 8, padding: 12, marginBottom: 10 },
   reviewHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  reviewerName: { fontSize: 13, fontWeight: '600', color: '#2B2140' },
+  reviewerName: { fontSize: 13, fontWeight: '600', color: '#111111' },
   reviewStars: { fontSize: 13, color: '#f4a729' },
+  reviewNote: { fontSize: 12, color: '#888', marginTop: 8, textAlign: 'center' },
+  mediaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
+  mediaThumb: { width: 72, height: 72, borderRadius: 8, backgroundColor: '#eee' },
+  videoTile: { width: 72, height: 72, borderRadius: 8, backgroundColor: '#111111', alignItems: 'center', justifyContent: 'center' },
+  videoIcon: { color: '#fff', fontSize: 22 },
+  videoLabel: { color: '#fff', fontSize: 11, marginTop: 2 },
+  viewerOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.92)', alignItems: 'center', justifyContent: 'center' },
+  viewerImage: { width: '100%', height: '80%' },
+  viewerClose: { color: '#ddd', fontSize: 12, marginTop: 12 },
   reviewComment: { fontSize: 13, color: '#555' },
 
   writeReview: { marginTop: 16, backgroundColor: '#f8f8fa', borderRadius: 10, padding: 16 },
-  writeReviewTitle: { fontSize: 14, fontWeight: '600', color: '#2B2140', marginBottom: 10 },
+  writeReviewTitle: { fontSize: 14, fontWeight: '600', color: '#111111', marginBottom: 10 },
   starPicker: { flexDirection: 'row', gap: 8, marginBottom: 12 },
   starPickerStar: { fontSize: 26, color: '#f4a729' },
   reviewInput: {

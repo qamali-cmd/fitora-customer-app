@@ -1,21 +1,45 @@
 // src/context/AuthContext.js
-// Ito ang humahawak sa "naka-login ba tayo" state ng buong app.
-// Ginagamit ang AsyncStorage (parang localStorage sa web, pero para sa phone)
-// para hindi mawala ang session kahit isara ang app.
+// Holds the logged-in customer for the whole app. The session is saved with AsyncStorage
+// (like localStorage on the web) so the user stays logged in after closing the app.
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import API from '../api/config';
+import { request, setUnauthorizedHandler } from '../api/http';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [customer, setCustomer] = useState(null);
   const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true); // habang chinecheck kung may saved session
+  const [loading, setLoading] = useState(true); // true while we check for a saved session
+  // true/false right after signing up (was the code email sent?), otherwise null
+  const [signupEmailSent, setSignupEmailSent] = useState(null);
 
-  // Pagbukas ng app, tignan muna kung may naka-save nang session
+  async function saveCustomer(updated) {
+    await AsyncStorage.setItem('fitora_customer', JSON.stringify(updated));
+    setCustomer(updated);
+  }
+
+  async function saveSession(newToken, newCustomer) {
+    await AsyncStorage.setItem('fitora_token', newToken);
+    await AsyncStorage.setItem('fitora_customer', JSON.stringify(newCustomer));
+    setToken(newToken);
+    setCustomer(newCustomer);
+  }
+
+  async function logout() {
+    await AsyncStorage.removeItem('fitora_token');
+    await AsyncStorage.removeItem('fitora_customer');
+    setToken(null);
+    setCustomer(null);
+    setSignupEmailSent(null);
+  }
+
+  // When the app opens, restore the saved session and refresh the profile from the server
   useEffect(() => {
+    setUnauthorizedHandler(logout); // the server says the session is no longer valid -> log out
+
     (async () => {
       try {
         const savedToken = await AsyncStorage.getItem('fitora_token');
@@ -23,6 +47,10 @@ export function AuthProvider({ children }) {
         if (savedToken && savedCustomer) {
           setToken(savedToken);
           setCustomer(JSON.parse(savedCustomer));
+          // Refresh in the background (also updates the "email verified" flag)
+          request(`${API.AUTH}/customers/me`, { token: savedToken })
+            .then((profile) => saveCustomer({ ...JSON.parse(savedCustomer), ...profile }))
+            .catch(() => {});
         }
       } catch (err) {
         console.error(err);
@@ -32,66 +60,76 @@ export function AuthProvider({ children }) {
     })();
   }, []);
 
-  async function login(email, password) {
-    const res = await fetch(`${API.AUTH}/customers/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Hindi ma-login.');
-
-    await AsyncStorage.setItem('fitora_token', data.token);
-    await AsyncStorage.setItem('fitora_customer', JSON.stringify(data.customer));
-    setToken(data.token);
-    setCustomer(data.customer);
+  // "identifier" can be the email OR the username
+  async function login(identifier, password) {
+    const data = await request(`${API.AUTH}/customers/login`, { method: 'POST', body: { identifier, password } });
+    setSignupEmailSent(null);
+    await saveSession(data.token, data.customer);
   }
 
-  async function register(fullName, email, password, phone, address, birthday) {
-    const res = await fetch(`${API.AUTH}/customers/register`, {
+  async function register(form) {
+    const data = await request(`${API.AUTH}/customers/register`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ full_name: fullName, email, password, phone, address, birthday }),
+      body: {
+        first_name: form.firstName,
+        middle_name: form.middleName,
+        last_name: form.lastName,
+        username: form.username,
+        email: form.email,
+        password: form.password,
+        phone: form.phone,
+        address: form.address,
+        birthday: form.birthday,
+      },
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Hindi ma-register.');
-
-    await AsyncStorage.setItem('fitora_token', data.token);
-    await AsyncStorage.setItem('fitora_customer', JSON.stringify(data.customer));
-    setToken(data.token);
-    setCustomer(data.customer);
+    setSignupEmailSent(data.emailSent !== false);
+    await saveSession(data.token, data.customer);
   }
 
-  // BAGO: pag-update ng profile (pangalan, phone, address)
+  // Loads the latest profile (name, photo, order count, verified flag...)
+  async function refreshProfile() {
+    if (!token) return null;
+    const profile = await request(`${API.AUTH}/customers/me`, { token });
+    await saveCustomer({ ...customer, ...profile });
+    return profile;
+  }
+
   async function updateProfile(updates) {
-    const res = await fetch(`${API.AUTH}/customers/me`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify(updates),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Hindi ma-update ang profile.');
-
-    const updatedCustomer = { ...customer, ...data.customer };
-    await AsyncStorage.setItem('fitora_customer', JSON.stringify(updatedCustomer));
-    setCustomer(updatedCustomer);
+    const data = await request(`${API.AUTH}/customers/me`, { method: 'PUT', token, body: updates });
+    await saveCustomer({ ...customer, ...data.customer });
   }
 
-  async function logout() {
-    await AsyncStorage.removeItem('fitora_token');
-    await AsyncStorage.removeItem('fitora_customer');
-    setToken(null);
-    setCustomer(null);
+  async function sendVerificationCode() {
+    return request(`${API.AUTH}/customers/me/send-code`, { method: 'POST', token });
+  }
+
+  async function verifyEmailCode(code) {
+    await request(`${API.AUTH}/customers/me/verify-code`, { method: 'POST', token, body: { code } });
+    setSignupEmailSent(null);
+    await saveCustomer({ ...customer, emailVerified: true });
+  }
+
+  async function changePassword(currentPassword, newPassword) {
+    await request(`${API.AUTH}/customers/me/password`, {
+      method: 'PUT',
+      token,
+      body: { current_password: currentPassword, new_password: newPassword },
+    });
   }
 
   return (
-    <AuthContext.Provider value={{ customer, token, loading, login, register, logout, updateProfile }}>
+    <AuthContext.Provider
+      value={{
+        customer, token, loading, signupEmailSent,
+        login, register, logout, refreshProfile, updateProfile,
+        sendVerificationCode, verifyEmailCode, changePassword,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
-// Ginagamit ito ng ibang screens para makuha ang customer info at functions
 export function useAuth() {
   return useContext(AuthContext);
 }

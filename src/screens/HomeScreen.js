@@ -7,11 +7,22 @@ import {
 import API from '../api/config';
 import { useCart } from '../context/CartContext';
 
+const AUDIENCE_TABS = [['all', 'All'], ['men', 'Men'], ['women', 'Women']];
+
+// "Men" shows the products for men and the unisex ones; "Women" the same for women
+export function filterByAudience(products, audience) {
+  if (audience === 'men' || audience === 'women') {
+    return products.filter((p) => !p.audience || p.audience === audience || p.audience === 'unisex');
+  }
+  return products;
+}
+
 export default function HomeScreen({ navigation }) {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [audience, setAudience] = useState('all');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const { itemCount } = useCart();
@@ -36,7 +47,7 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
-  const filteredProducts = products.filter(p => {
+  const filteredProducts = filterByAudience(products, audience).filter(p => {
     const matchesSearch = !search || p.product_name.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || p.category_id === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -46,7 +57,10 @@ export default function HomeScreen({ navigation }) {
     <View style={styles.container}>
       {/* EDIT DITO: pangalan ng company sa header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Fitora Gear</Text>
+        <View style={styles.brandRow}>
+          <Image source={require('../../assets/logo.png')} style={styles.headerLogo} />
+          <Text style={styles.headerTitle}>Fitora Gear</Text>
+        </View>
         <TouchableOpacity style={styles.cartButton} onPress={() => navigation.navigate('Cart')}>
           <Text style={styles.cartIcon}>🛒</Text>
           {itemCount > 0 && (
@@ -59,16 +73,24 @@ export default function HomeScreen({ navigation }) {
 
       <TextInput
         style={styles.searchInput}
-        placeholder="Maghanap ng product..."
+        placeholder="Search products..."
         value={search}
         onChangeText={setSearch}
       />
+
+      <View style={styles.audienceRow}>
+        {AUDIENCE_TABS.map(([key, label]) => (
+          <TouchableOpacity key={key} style={[styles.audienceTab, audience === key && styles.audienceTabActive]} onPress={() => setAudience(key)}>
+            <Text style={[styles.audienceText, audience === key && styles.audienceTextActive]}>{label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
       <FlatList
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.categoryList}
-        data={[{ category_id: 'all', category_name: 'Lahat' }, ...categories]}
+        data={[{ category_id: 'all', category_name: 'All' }, ...categories]}
         keyExtractor={item => String(item.category_id)}
         renderItem={({ item }) => (
           <TouchableOpacity
@@ -83,7 +105,7 @@ export default function HomeScreen({ navigation }) {
       />
 
       {loading ? (
-        <ActivityIndicator style={{ marginTop: 40 }} size="large" color="#6C5CE7" />
+        <ActivityIndicator style={{ marginTop: 40 }} size="large" color="#fc408c" />
       ) : (
         <FlatList
           data={filteredProducts}
@@ -109,19 +131,21 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.productPrice}>₱{Number(item.price).toLocaleString()}</Text>
             </TouchableOpacity>
           )}
-          ListEmptyComponent={<Text style={styles.emptyText}>Walang product na tumugma.</Text>}
+          ListEmptyComponent={<Text style={styles.emptyText}>No matching products.</Text>}
         />
       )}
     </View>
   );
 }
 
-const PRIMARY = '#6C5CE7';
+const PRIMARY = '#fc408c';
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f4f5f7', paddingTop: 50 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, marginBottom: 12 },
-  headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#2B2140' },
+  brandRow: { flexDirection: 'row', alignItems: 'center' },
+  headerLogo: { width: 34, height: 34, marginRight: 10 },
+  headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#111111' },
   cartButton: { padding: 6 },
   cartIcon: { fontSize: 24 },
   cartBadge: {
@@ -133,6 +157,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8,
     padding: 12, marginHorizontal: 16, marginBottom: 12, fontSize: 14,
   },
+  audienceRow: { flexDirection: 'row', marginHorizontal: 16, marginBottom: 12, padding: 4, borderRadius: 14, backgroundColor: '#ececf0' },
+  audienceTab: { flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: 11 },
+  audienceTabActive: { backgroundColor: PRIMARY },
+  audienceText: { fontSize: 14, fontWeight: '600', color: '#666' },
+  audienceTextActive: { color: '#fff' },
   categoryList: { flexGrow: 0, marginBottom: 12, paddingLeft: 16 },
   categoryChip: {
     paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20,
@@ -146,10 +175,10 @@ const styles = StyleSheet.create({
     flex: 1, backgroundColor: '#fff', borderRadius: 10, padding: 12, margin: 8, maxWidth: '46%',
   },
   productImagePlaceholder: {
-    backgroundColor: '#f0eefc', borderRadius: 8, height: 100, alignItems: 'center', justifyContent: 'center', marginBottom: 8,
+    backgroundColor: '#fff0f6', borderRadius: 8, height: 100, alignItems: 'center', justifyContent: 'center', marginBottom: 8,
   },
   productImageEmoji: { fontSize: 32 },
-  productName: { fontSize: 13, color: '#2B2140', marginBottom: 4, minHeight: 34 },
+  productName: { fontSize: 13, color: '#111111', marginBottom: 4, minHeight: 34 },
   productPrice: { fontSize: 14, fontWeight: 'bold', color: PRIMARY },
   emptyText: { textAlign: 'center', color: '#888', marginTop: 40 },
 });

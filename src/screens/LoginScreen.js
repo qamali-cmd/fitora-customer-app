@@ -2,23 +2,27 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ActivityIndicator,
+  ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Image,
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginScreen({ navigation }) {
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState(''); // email OR username
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   async function handleLogin() {
     setError('');
+    if (!identifier.trim() || !password) {
+      setError('Please enter your email or username and your password.');
+      return;
+    }
     setLoading(true);
     try {
-      await login(email.trim(), password);
-      // Awtomatikong lilipat sa Main app - tignan ang App.js
+      await login(identifier.trim(), password);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -28,52 +32,74 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      {/* EDIT DITO: pangalan ng company at tagline */}
-      <Text style={styles.title}>Fitora Gear</Text>
-      <Text style={styles.subtitle}>Mag-login para magsimulang mamili</Text>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <Image source={require('../../assets/logo.png')} style={styles.logo} />
+        {/* EDIT HERE: company name and tagline */}
+        <Text style={styles.brand}>Fitora Gear</Text>
+        <Text style={styles.subtitle}>Log in to start shopping</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Email or username"
+          value={identifier}
+          onChangeText={setIdentifier}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+        <View style={styles.passwordRow}>
+          <TextInput
+            style={styles.passwordInput}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+          />
+          <TouchableOpacity style={styles.eyeButton} onPress={() => setShowPassword((v) => !v)}>
+            <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
+          </TouchableOpacity>
+        </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Log in</Text>}
-      </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')} style={styles.forgotWrap}>
+          <Text style={styles.forgotText}>Forgot password?</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.link}>Wala pang account? Mag-register</Text>
-      </TouchableOpacity>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+
+        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Log in</Text>}
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate('Register')} style={styles.link}>
+          <Text style={styles.linkText}>Don't have an account? Register</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
-// EDIT DITO: mga kulay ng theme mo
-const PRIMARY = '#6C5CE7';
+const PRIMARY = '#fc408c';
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#f4f5f7' },
-  title: { fontSize: 32, fontWeight: 'bold', color: PRIMARY, textAlign: 'center' },
-  subtitle: { fontSize: 14, color: '#888', textAlign: 'center', marginBottom: 32, marginTop: 4 },
-  input: {
-    backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8,
-    padding: 14, marginBottom: 12, fontSize: 15,
+  container: { flex: 1, backgroundColor: '#f4f5f7' },
+  content: { flexGrow: 1, justifyContent: 'center', padding: 24 },
+  logo: { width: 120, height: 120, alignSelf: 'center', marginBottom: 10 },
+  brand: { fontSize: 32, fontWeight: 'bold', color: '#111111', textAlign: 'center' },
+  subtitle: { fontSize: 14, color: '#888', textAlign: 'center', marginBottom: 28, marginTop: 4 },
+  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 14, fontSize: 15, marginBottom: 12 },
+  passwordRow: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
+    borderWidth: 1, borderColor: '#ddd', borderRadius: 8, marginBottom: 12,
   },
-  button: { backgroundColor: PRIMARY, padding: 15, borderRadius: 8, alignItems: 'center', marginTop: 8 },
+  passwordInput: { flex: 1, padding: 14, fontSize: 15 },
+  eyeButton: { paddingHorizontal: 14 },
+  eyeIcon: { fontSize: 18 },
+  error: { color: '#e74c3c', textAlign: 'center', marginBottom: 12, fontSize: 13 },
+  button: { backgroundColor: PRIMARY, padding: 15, borderRadius: 8, alignItems: 'center', marginTop: 4 },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  error: { color: '#e74c3c', textAlign: 'center', marginBottom: 8, fontSize: 13 },
-  link: { color: PRIMARY, textAlign: 'center', marginTop: 20, fontSize: 14 },
+  forgotWrap: { alignSelf: 'flex-end', marginBottom: 14, marginTop: -2 },
+  forgotText: { color: PRIMARY, fontSize: 13 },
+  link: { alignItems: 'center', marginTop: 18 },
+  linkText: { color: PRIMARY, fontSize: 14 },
 });
