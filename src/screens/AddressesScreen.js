@@ -3,6 +3,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator, Alert } from 'react-native';
+import Icon from '../components/Icon';
 import { useFocusEffect } from '@react-navigation/native';
 import API from '../api/config';
 import { request } from '../api/http';
@@ -106,7 +107,7 @@ export default function AddressesScreen({ navigation, route }) {
           }}
           ListEmptyComponent={
             <View style={styles.center}>
-              <Text style={styles.emptyIcon}>📍</Text>
+              <Icon name="location-outline" size={52} color="#FC408C" style={{ marginBottom: 6 }} />
               <Text style={styles.emptyText}>You have no saved addresses yet.</Text>
               <Text style={styles.emptyHint}>Add one so checkout is quick and delivery is accurate.</Text>
             </View>

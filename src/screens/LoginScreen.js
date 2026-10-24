@@ -4,6 +4,7 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Image,
 } from 'react-native';
+import Icon from '../components/Icon';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginScreen({ navigation }) {
@@ -57,7 +58,7 @@ export default function LoginScreen({ navigation }) {
             autoCapitalize="none"
           />
           <TouchableOpacity style={styles.eyeButton} onPress={() => setShowPassword((v) => !v)}>
-            <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
+            <Icon name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={21} color="#8A8A8A" />
           </TouchableOpacity>
         </View>
 

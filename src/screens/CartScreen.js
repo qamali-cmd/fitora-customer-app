@@ -1,6 +1,7 @@
 // src/screens/CartScreen.js
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import Icon from '../components/Icon';
 import { useCart } from '../context/CartContext';
 
 export default function CartScreen({ navigation }) {
@@ -17,7 +18,7 @@ export default function CartScreen({ navigation }) {
         renderItem={({ item }) => (
           <View style={styles.cartItem}>
             <View style={styles.itemImagePlaceholder}>
-              <Text style={{ fontSize: 20 }}>🛍️</Text>
+              <Icon name="bag-handle-outline" size={22} color="#FC408C" />
             </View>
             <View style={styles.itemInfo}>
               <Text style={styles.itemName} numberOfLines={1}>{item.product.product_name}</Text>

@@ -16,7 +16,9 @@ import { NotificationProvider, useNotifications } from './src/context/Notificati
 
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
+import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import SearchScreen from './src/screens/SearchScreen';
 import ProductDetailScreen from './src/screens/ProductDetailScreen';
 import CartScreen from './src/screens/CartScreen';
 import CheckoutScreen from './src/screens/CheckoutScreen';
@@ -27,6 +29,8 @@ import MeScreen from './src/screens/MeScreen';
 import NotificationsScreen from './src/screens/NotificationsScreen';
 import AddressesScreen from './src/screens/AddressesScreen';
 import AddressFormScreen from './src/screens/AddressFormScreen';
+import WriteReviewScreen from './src/screens/WriteReviewScreen';
+import { DialogHost } from './src/utils/dialogs';
 import DevelopersScreen from './src/screens/DevelopersScreen';
 import ChangePasswordScreen from './src/screens/ChangePasswordScreen';
 import VerifyEmailScreen from './src/screens/VerifyEmailScreen';
@@ -42,6 +46,7 @@ function HomeStackScreen() {
   return (
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
       <HomeStack.Screen name="HomeMain" component={HomeScreen} />
+      <HomeStack.Screen name="Search" component={SearchScreen} />
       <HomeStack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ headerShown: true, title: '' }} />
       <HomeStack.Screen name="Cart" component={CartScreen} />
       <HomeStack.Screen name="Checkout" component={CheckoutScreen} />
@@ -49,6 +54,7 @@ function HomeStackScreen() {
       <HomeStack.Screen name="AddressForm" component={AddressFormScreen} options={{ headerShown: true, title: 'Delivery address' }} />
       <HomeStack.Screen name="OrderHistory" component={OrderHistoryScreen} />
       <HomeStack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ headerShown: true, title: 'Order details' }} />
+      <HomeStack.Screen name="WriteReview" component={WriteReviewScreen} options={{ headerShown: true, title: 'Rate product' }} />
     </HomeStack.Navigator>
   );
 }
@@ -59,6 +65,7 @@ function OrdersStackScreen() {
     <OrdersStack.Navigator screenOptions={{ headerShown: false }}>
       <OrdersStack.Screen name="OrderHistoryMain" component={OrderHistoryScreen} />
       <OrdersStack.Screen name="OrderDetail" component={OrderDetailScreen} options={{ headerShown: true, title: 'Order details' }} />
+      <OrdersStack.Screen name="WriteReview" component={WriteReviewScreen} options={{ headerShown: true, title: 'Rate product' }} />
     </OrdersStack.Navigator>
   );
 }
@@ -85,7 +92,7 @@ function TabIcon({ emoji, focused }) {
 function MainTabs() {
   const { unreadCount } = useNotifications();
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false, tabBarActiveTintColor: '#6C5CE7' }}>
+    <Tab.Navigator screenOptions={{ headerShown: false, tabBarActiveTintColor: '#fc408c' }}>
       <Tab.Screen
         name="Home"
         component={HomeStackScreen}
@@ -119,6 +126,7 @@ function AuthStackScreen() {
     <AuthStack.Navigator screenOptions={{ headerShown: false }}>
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="Register" component={RegisterScreen} />
+      <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     </AuthStack.Navigator>
   );
 }
@@ -129,7 +137,7 @@ function RootNavigator() {
   if (loading) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator size="large" color="#6C5CE7" />
+        <ActivityIndicator size="large" color="#fc408c" />
       </View>
     );
   }
@@ -151,6 +159,7 @@ export default function App() {
         <NotificationProvider>
           <StatusBar style="dark" />
           <RootNavigator />
+          <DialogHost />
         </NotificationProvider>
       </CartProvider>
     </AuthProvider>

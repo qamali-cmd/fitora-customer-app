@@ -6,6 +6,7 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   KeyboardAvoidingView, Platform, ActivityIndicator,
 } from 'react-native';
+import Icon from '../components/Icon';
 import { useAuth } from '../context/AuthContext';
 
 const RESEND_SECONDS = 60;
@@ -65,7 +66,7 @@ export default function VerifyEmailScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Text style={styles.icon}>✉️</Text>
+      <Icon name="mail-outline" size={44} color="#FC408C" />
       <Text style={styles.title}>Verify your email</Text>
       <Text style={styles.subtitle}>{intro}</Text>
       <Text style={styles.email}>{customer?.email}</Text>

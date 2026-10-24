@@ -9,6 +9,7 @@ import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView,
 } from 'react-native';
+import Icon from '../components/Icon';
 import API from '../api/config';
 import { request } from '../api/http';
 
@@ -28,7 +29,7 @@ function PasswordField({ placeholder, value, onChangeText }) {
         autoCapitalize="none"
       />
       <TouchableOpacity style={styles.eyeButton} onPress={() => setVisible((v) => !v)}>
-        <Text style={styles.eyeIcon}>{visible ? '🙈' : '👁️'}</Text>
+        <Icon name={visible ? 'eye-off-outline' : 'eye-outline'} size={21} color="#8A8A8A" />
       </TouchableOpacity>
     </View>
   );
@@ -119,7 +120,7 @@ export default function ForgotPasswordScreen({ navigation }) {
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {step === 'request' && (
           <>
-            <Text style={styles.icon}>🔑</Text>
+            <Icon name="key-outline" size={44} color="#FC408C" />
             <Text style={styles.title}>Forgot password?</Text>
             <Text style={styles.subtitle}>Type your email or username. We will send a 6-digit code to the email of your account.</Text>
 
@@ -148,7 +149,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
         {step === 'reset' && (
           <>
-            <Text style={styles.icon}>✉️</Text>
+            <Icon name="mail-outline" size={44} color="#FC408C" />
             <Text style={styles.title}>Reset your password</Text>
             <Text style={styles.subtitle}>Type the 6-digit code from your email, then choose a new password.</Text>
 
@@ -194,7 +195,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 
         {step === 'done' && (
           <>
-            <Text style={styles.icon}>✅</Text>
+            <Icon name="checkmark-circle" size={48} color="#1E8E4F" />
             <Text style={styles.title}>Password changed</Text>
             <Text style={styles.subtitle}>You can now log in with your new password.</Text>
             <TouchableOpacity style={styles.button} onPress={goToLogin}>

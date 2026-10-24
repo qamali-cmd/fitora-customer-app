@@ -1,6 +1,7 @@
 // src/screens/ChangePasswordScreen.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import Icon from '../components/Icon';
 import { useAuth } from '../context/AuthContext';
 
 // Keep this rule the same as the one on the server (services/auth-service/server.js)
@@ -19,7 +20,7 @@ function PasswordField({ placeholder, value, onChangeText }) {
         autoCapitalize="none"
       />
       <TouchableOpacity style={styles.eyeButton} onPress={() => setVisible((v) => !v)}>
-        <Text style={styles.eyeIcon}>{visible ? '🙈' : '👁️'}</Text>
+        <Icon name={visible ? 'eye-off-outline' : 'eye-outline'} size={21} color="#8A8A8A" />
       </TouchableOpacity>
     </View>
   );

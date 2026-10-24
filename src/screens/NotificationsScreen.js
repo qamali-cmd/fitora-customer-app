@@ -1,11 +1,17 @@
 // src/screens/NotificationsScreen.js
-// Order updates, newest first. New updates are highlighted until the customer has seen them.
+// Order updates, newest first. Every update has a round icon with a color, and the photo of the first item.
+// New updates are highlighted until the customer has seen them.
 
 import React, { useState, useCallback, useRef } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, RefreshControl, Image, Platform, StatusBar } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useNotifications } from '../context/NotificationContext';
+import { COLORS, TONES, peso } from '../theme';
+import Icon from '../components/Icon';
+import { thumb } from '../utils/productUtils';
 import { notificationFor } from '../utils/orderUtils';
+
+const dateText = (iso) => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); };
 
 export default function NotificationsScreen({ navigation }) {
   const { orders, unreadIds, refresh, markAllSeen } = useNotifications();
@@ -31,41 +37,54 @@ export default function NotificationsScreen({ navigation }) {
   }
 
   const items = [...orders].sort((a, b) => new Date(b.order_date) - new Date(a.order_date));
+  const newCount = items.filter((o) => highlight.includes(o.order_id) || unreadIds.includes(o.order_id)).length;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Notifications</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Notifications</Text>
+        <Text style={styles.subtitle}>{newCount > 0 ? `${newCount} new ${newCount === 1 ? 'update' : 'updates'}` : 'Updates about your orders'}</Text>
+      </View>
       <FlatList
         data={items}
         keyExtractor={(order) => String(order.order_id)}
         contentContainerStyle={styles.list}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[COLORS.primary]} tintColor={COLORS.primary} />}
         renderItem={({ item }) => {
           const info = notificationFor(item);
+          const tone = TONES[info.tone] || TONES.pink;
           const isNew = highlight.includes(item.order_id) || unreadIds.includes(item.order_id);
+          const first = (item.items || [])[0];
           return (
             <TouchableOpacity
               style={[styles.card, isNew && styles.cardNew]}
+              activeOpacity={0.85}
+              accessibilityLabel={info.title}
               onPress={() => navigation.navigate('Orders', { screen: 'OrderDetail', params: { orderId: item.order_id }, initial: false })}
             >
-              <Text style={styles.icon}>{info.icon}</Text>
+              <View style={[styles.iconCircle, { backgroundColor: tone.bg }]}>
+                <Icon name={info.icon} size={24} color={tone.fg} />
+              </View>
               <View style={styles.body}>
                 <View style={styles.titleRow}>
-                  <Text style={styles.cardTitle}>{info.title}</Text>
+                  <Text style={styles.cardTitle} numberOfLines={2}>{info.title}</Text>
                   {isNew ? <View style={styles.dot} /> : null}
                 </View>
-                <Text style={styles.text}>{info.text}</Text>
-                <Text style={styles.meta}>
-                  {new Date(item.order_date).toLocaleDateString()} · ₱{Number(item.total_amount).toLocaleString()}
-                </Text>
+                <Text style={styles.text} numberOfLines={3}>{info.text}</Text>
+                <View style={styles.metaRow}>
+                  <Icon name="time-outline" size={12} color={COLORS.muted} />
+                  <Text style={styles.meta}>{dateText(item.order_date)} · {peso(item.total_amount)}</Text>
+                </View>
               </View>
+              {first && first.image ? <Image source={{ uri: thumb(first.image, 160) }} style={styles.photo} resizeMode="cover" /> : null}
             </TouchableOpacity>
           );
         }}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={styles.emptyIcon}>🔔</Text>
-            <Text style={styles.emptyText}>No notifications yet.</Text>
+            <View style={styles.emptyCircle}><Icon name="notifications-outline" size={44} color={COLORS.primary} /></View>
+            <Text style={styles.emptyText}>No notifications yet</Text>
             <Text style={styles.emptyHint}>Updates about your orders will appear here.</Text>
           </View>
         }
@@ -74,23 +93,27 @@ export default function NotificationsScreen({ navigation }) {
   );
 }
 
-const PRIMARY = '#fc408c';
+const TOP = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 8 : Platform.OS === 'ios' ? 54 : 14;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f4f5f7', paddingTop: 50 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#111111', paddingHorizontal: 16, marginBottom: 12 },
-  list: { paddingHorizontal: 16, paddingBottom: 20 },
-  card: { flexDirection: 'row', backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10 },
-  cardNew: { backgroundColor: '#ffe8f1', borderWidth: 1, borderColor: '#ffc2dc' },
-  icon: { fontSize: 26, marginRight: 12 },
+  container: { flex: 1, backgroundColor: COLORS.bg },
+  header: { backgroundColor: COLORS.primary, paddingTop: TOP, paddingBottom: 14, paddingHorizontal: 16 },
+  title: { fontSize: 22, fontWeight: '800', color: '#fff' },
+  subtitle: { fontSize: 12, color: 'rgba(255,255,255,0.88)', marginTop: 2 },
+  list: { padding: 12, paddingBottom: 24 },
+  card: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 14, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#f1e4ea' },
+  cardNew: { backgroundColor: COLORS.primaryTint, borderColor: '#ffc2da', borderLeftWidth: 4, borderLeftColor: COLORS.primary },
+  iconCircle: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
   body: { flex: 1 },
   titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  cardTitle: { fontSize: 14, fontWeight: '700', color: '#111111', flex: 1 },
-  dot: { width: 9, height: 9, borderRadius: 5, backgroundColor: '#e74c3c', marginLeft: 8 },
-  text: { fontSize: 13, color: '#555', marginTop: 3 },
-  meta: { fontSize: 11, color: '#999', marginTop: 6 },
-  empty: { alignItems: 'center', marginTop: 80 },
-  emptyIcon: { fontSize: 44, marginBottom: 8 },
-  emptyText: { fontSize: 15, fontWeight: '600', color: '#555' },
-  emptyHint: { fontSize: 13, color: '#999', marginTop: 4 },
+  cardTitle: { fontSize: 14, fontWeight: '800', color: COLORS.ink, flex: 1 },
+  dot: { width: 9, height: 9, borderRadius: 5, backgroundColor: COLORS.primary, marginLeft: 8 },
+  text: { fontSize: 13, color: '#555', marginTop: 3, lineHeight: 18 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
+  meta: { fontSize: 11, color: COLORS.muted, marginLeft: 4 },
+  photo: { width: 52, height: 52, borderRadius: 8, marginLeft: 10, backgroundColor: COLORS.primaryTint },
+  empty: { alignItems: 'center', marginTop: 70 },
+  emptyCircle: { width: 96, height: 96, borderRadius: 48, backgroundColor: COLORS.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  emptyText: { fontSize: 16, fontWeight: '800', color: COLORS.ink, marginTop: 14 },
+  emptyHint: { fontSize: 13, color: COLORS.muted, marginTop: 4 },
 });

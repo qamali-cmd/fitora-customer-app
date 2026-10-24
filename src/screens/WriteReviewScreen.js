@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, ActivityIndicator, Alert } from 'react-native';
+import Icon from '../components/Icon';
 import API from '../api/config';
 import { request } from '../api/http';
 import { useAuth } from '../context/AuthContext';
@@ -79,7 +80,7 @@ export default function WriteReviewScreen({ navigation, route }) {
       <View style={styles.starRow}>
         {[1, 2, 3, 4, 5].map((n) => (
           <TouchableOpacity key={n} onPress={() => setRating(n)}>
-            <Text style={[styles.star, n <= rating && styles.starOn]}>{n <= rating ? '★' : '☆'}</Text>
+            <Icon name={n <= rating ? 'star' : 'star-outline'} size={34} color={n <= rating ? '#FFB400' : '#C9C9D0'} />
           </TouchableOpacity>
         ))}
       </View>
@@ -100,10 +101,10 @@ export default function WriteReviewScreen({ navigation, route }) {
       <Text style={styles.hint}>Up to {MAX_PHOTOS} photos and 1 video of up to {MAX_VIDEO_SECONDS} seconds.</Text>
       <View style={styles.pickRow}>
         <TouchableOpacity style={styles.pickButton} onPress={addPhotos} disabled={sending}>
-          <Text style={styles.pickText}>📷 Add photos ({photos.length}/{MAX_PHOTOS})</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}><Icon name="camera-outline" size={18} color="#FC408C" /><Text style={[styles.pickText, { marginLeft: 6 }]}>Add photos ({photos.length}/{MAX_PHOTOS})</Text></View>
         </TouchableOpacity>
         <TouchableOpacity style={styles.pickButton} onPress={addVideo} disabled={sending}>
-          <Text style={styles.pickText}>🎬 {video ? 'Change video' : 'Add video'}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}><Icon name="videocam-outline" size={18} color="#FC408C" /><Text style={[styles.pickText, { marginLeft: 6 }]}>{video ? 'Change video' : 'Add video'}</Text></View>
         </TouchableOpacity>
       </View>
 
@@ -114,18 +115,18 @@ export default function WriteReviewScreen({ navigation, route }) {
               <Image source={{ uri: p.uri }} style={styles.thumb} />
               {!sending ? (
                 <TouchableOpacity style={styles.remove} onPress={() => setPhotos((cur) => cur.filter((_, idx) => idx !== i))}>
-                  <Text style={styles.removeText}>✕</Text>
+                  <Icon name="close" size={14} color="#fff" />
                 </TouchableOpacity>
               ) : null}
             </View>
           ))}
           {video ? (
             <View style={[styles.thumbWrap, styles.videoTile]}>
-              <Text style={styles.videoIcon}>🎬</Text>
+              <Icon name="videocam" size={28} color="#fff" />
               <Text style={styles.videoLabel}>Video</Text>
               {!sending ? (
                 <TouchableOpacity style={styles.remove} onPress={() => setVideo(null)}>
-                  <Text style={styles.removeText}>✕</Text>
+                  <Icon name="close" size={14} color="#fff" />
                 </TouchableOpacity>
               ) : null}
             </View>

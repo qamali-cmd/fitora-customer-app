@@ -6,6 +6,7 @@ import {
   View, Text, TouchableOpacity, StyleSheet, Alert, TextInput,
   ActivityIndicator, ScrollView, Image,
 } from 'react-native';
+import Icon from '../components/Icon';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import BirthdayPicker from '../components/BirthdayPicker';
@@ -158,7 +159,7 @@ export default function AccountScreen({ navigation }) {
             </View>
           )}
           <View style={styles.cameraBadge}>
-            {uploading ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.cameraIcon}>📷</Text>}
+            {uploading ? <ActivityIndicator size="small" color="#fff" /> : <Icon name="camera" size={16} color="#fff" />}
           </View>
         </TouchableOpacity>
 

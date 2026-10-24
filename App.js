@@ -3,12 +3,16 @@
 //   - Kung hindi naka-login: Login/Register screens
 //   - Kung naka-login: Bottom tabs (Home, Orders, Notifications, Me)
 
+import './src/webSetup'; // (first on purpose) in a browser, keeps the app the width of a phone
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { ActivityIndicator, View, Text } from 'react-native';
+import { ActivityIndicator, View, Text, Platform } from 'react-native';
+import { WEB_MAX_WIDTH } from './src/webSetup';
 import { StatusBar } from 'expo-status-bar';
+import Icon from './src/components/Icon';
+import { COLORS, TAB_BAR_STYLE } from './src/theme';
 
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { CartProvider } from './src/context/CartContext';
@@ -18,6 +22,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import SearchScreen from './src/screens/SearchScreen';
 import ProductDetailScreen from './src/screens/ProductDetailScreen';
 import CartScreen from './src/screens/CartScreen';
 import CheckoutScreen from './src/screens/CheckoutScreen';
@@ -45,7 +50,8 @@ function HomeStackScreen() {
   return (
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
       <HomeStack.Screen name="HomeMain" component={HomeScreen} />
-      <HomeStack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ headerShown: true, title: '' }} />
+      <HomeStack.Screen name="Search" component={SearchScreen} />
+      <HomeStack.Screen name="ProductDetail" component={ProductDetailScreen} />
       <HomeStack.Screen name="Cart" component={CartScreen} />
       <HomeStack.Screen name="Checkout" component={CheckoutScreen} />
       <HomeStack.Screen name="Addresses" component={AddressesScreen} options={{ headerShown: true, title: 'My addresses' }} />
@@ -82,38 +88,48 @@ function MeStackScreen() {
   );
 }
 
-function TabIcon({ emoji, focused }) {
-  return <Text style={{ fontSize: 21, opacity: focused ? 1 : 0.5 }}>{emoji}</Text>;
+// The icons of the bottom bar: a line icon that turns solid pink, with a soft glow, when its tab is open
+const TAB_ICONS = {
+  Home: ['home', 'home-outline'],
+  Orders: ['receipt', 'receipt-outline'],
+  Notifications: ['notifications', 'notifications-outline'],
+  Me: ['person', 'person-outline'],
+};
+
+function TabIcon({ routeName, focused }) {
+  const [solid, line] = TAB_ICONS[routeName] || ['ellipse', 'ellipse-outline'];
+  return (
+    <View style={{ width: 54, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: focused ? 'rgba(252,64,140,0.20)' : 'transparent' }}>
+      <Icon name={focused ? solid : line} size={22} color={focused ? COLORS.primary : '#8d8d99'} />
+    </View>
+  );
 }
 
-// EDIT DITO: kung gusto mong palitan ang mga icons/labels ng bottom tabs
+// EDIT DITO: kung gusto mong palitan ang itsura ng bottom tabs (kulay, bilog na gilid, atbp.)
 function MainTabs() {
   const { unreadCount } = useNotifications();
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false, tabBarActiveTintColor: '#fc408c' }}>
-      <Tab.Screen
-        name="Home"
-        component={HomeStackScreen}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} /> }}
-      />
-      <Tab.Screen
-        name="Orders"
-        component={OrdersStackScreen}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="🧾" focused={focused} /> }}
-      />
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarLabelPosition: 'below-icon', // the names stay under the icons, even in a wide browser window
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: '#8d8d99',
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '700', marginBottom: 2 },
+        // the bottom bar is hidden on the page of a product (that page has its own bar with the cart and "Add to Cart")
+        tabBarStyle: getFocusedRouteNameFromRoute(route) === 'ProductDetail' ? { display: 'none' } : TAB_BAR_STYLE,
+        tabBarBadgeStyle: { backgroundColor: COLORS.primary, color: '#fff', fontSize: 10, fontWeight: '800' },
+        tabBarIcon: ({ focused }) => <TabIcon routeName={route.name} focused={focused} />,
+      })}
+    >
+      <Tab.Screen name="Home" component={HomeStackScreen} />
+      <Tab.Screen name="Orders" component={OrdersStackScreen} />
       <Tab.Screen
         name="Notifications"
         component={NotificationsScreen}
-        options={{
-          tabBarIcon: ({ focused }) => <TabIcon emoji="🔔" focused={focused} />,
-          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
-        }}
+        options={{ tabBarBadge: unreadCount > 0 ? unreadCount : undefined }}
       />
-      <Tab.Screen
-        name="Me"
-        component={MeStackScreen}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }}
-      />
+      <Tab.Screen name="Me" component={MeStackScreen} />
     </Tab.Navigator>
   );
 }
@@ -150,16 +166,28 @@ function RootNavigator() {
   );
 }
 
+// In a browser the app is shown like a phone in the middle of the window (on a phone this does nothing)
+function PhoneFrame({ children }) {
+  if (Platform.OS !== 'web') return children;
+  return (
+    <View style={{ flex: 1, backgroundColor: '#1a1a1d', alignItems: 'center' }}>
+      <View style={{ flex: 1, width: '100%', maxWidth: WEB_MAX_WIDTH, backgroundColor: '#fff', overflow: 'hidden' }}>{children}</View>
+    </View>
+  );
+}
+
 export default function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <NotificationProvider>
-          <StatusBar style="dark" />
-          <RootNavigator />
-          <DialogHost />
-        </NotificationProvider>
-      </CartProvider>
-    </AuthProvider>
+    <PhoneFrame>
+      <AuthProvider>
+        <CartProvider>
+          <NotificationProvider>
+            <StatusBar style="dark" />
+            <RootNavigator />
+            <DialogHost />
+          </NotificationProvider>
+        </CartProvider>
+      </AuthProvider>
+    </PhoneFrame>
   );
 }

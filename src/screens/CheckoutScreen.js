@@ -3,6 +3,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, ScrollView, Modal, Linking } from 'react-native';
+import Icon from '../components/Icon';
 import { useFocusEffect } from '@react-navigation/native';
 import API from '../api/config';
 import { request } from '../api/http';
@@ -335,7 +336,7 @@ export default function CheckoutScreen({ navigation, route }) {
   if (items.length === 0) {
     return (
       <View style={styles.emptyScreen}>
-        <Text style={styles.emptyScreenIcon}>🛒</Text>
+        <Icon name="cart-outline" size={56} color="#FC408C" />
         <Text style={styles.emptyScreenText}>Your order is empty.</Text>
         <TouchableOpacity style={styles.addButton} onPress={() => navigation.popToTop()}>
           <Text style={styles.addButtonText}>Back to the shop</Text>
