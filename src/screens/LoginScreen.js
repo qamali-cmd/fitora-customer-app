@@ -39,7 +39,7 @@ export default function LoginScreen({ navigation }) {
         <Text style={styles.brand}>Fitora Gear</Text>
         <Text style={styles.subtitle}>Log in to start shopping</Text>
 
-        <TextInput
+        <TextInput placeholderTextColor="#9A9AA0"
           style={styles.input}
           placeholder="Email or username"
           value={identifier}
@@ -49,7 +49,7 @@ export default function LoginScreen({ navigation }) {
         />
 
         <View style={styles.passwordRow}>
-          <TextInput
+          <TextInput placeholderTextColor="#9A9AA0"
             style={styles.passwordInput}
             placeholder="Password"
             value={password}
@@ -88,12 +88,12 @@ const styles = StyleSheet.create({
   logo: { width: 120, height: 120, alignSelf: 'center', marginBottom: 10 },
   brand: { fontSize: 32, fontWeight: 'bold', color: '#111111', textAlign: 'center' },
   subtitle: { fontSize: 14, color: '#888', textAlign: 'center', marginBottom: 28, marginTop: 4 },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 14, fontSize: 15, marginBottom: 12 },
+  input: { color: '#1F1F1F', backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 14, fontSize: 15, marginBottom: 12 },
   passwordRow: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
     borderWidth: 1, borderColor: '#ddd', borderRadius: 8, marginBottom: 12,
   },
-  passwordInput: { flex: 1, padding: 14, fontSize: 15 },
+  passwordInput: { color: '#1F1F1F', flex: 1, padding: 14, fontSize: 15 },
   eyeButton: { paddingHorizontal: 14 },
   eyeIcon: { fontSize: 18 },
   error: { color: '#e74c3c', textAlign: 'center', marginBottom: 12, fontSize: 13 },

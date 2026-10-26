@@ -11,7 +11,7 @@ function PasswordField({ placeholder, value, onChangeText }) {
   const [visible, setVisible] = useState(false);
   return (
     <View style={styles.passwordRow}>
-      <TextInput
+      <TextInput placeholderTextColor="#9A9AA0"
         style={styles.passwordInput}
         placeholder={placeholder}
         value={value}
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
     borderWidth: 1, borderColor: '#ddd', borderRadius: 8,
   },
-  passwordInput: { flex: 1, padding: 14, fontSize: 15 },
+  passwordInput: { color: '#1F1F1F', flex: 1, padding: 14, fontSize: 15 },
   eyeButton: { paddingHorizontal: 14 },
   eyeIcon: { fontSize: 18 },
   hint: { fontSize: 11, color: '#888', marginTop: 4 },

@@ -3,26 +3,35 @@
     "name": "Fitora Gear",
     "slug": "fitora-customer-app",
     "scheme": "fitoragear",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "splash": {
-      "backgroundColor": "#6C5CE7"
-    },
+    "backgroundColor": "#FFFFFF",
+    "icon": "./assets/icon.png",
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FC408C",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200
+        }
+      ]
+    ],
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fitoragear.app"
     },
     "android": {
+      "package": "com.fitoragear.app",
+      "versionCode": 2,
       "adaptiveIcon": {
-        "backgroundColor": "#6C5CE7"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
       }
-    },
-    "plugins": [
-      "expo-status-bar",
-      "expo-web-browser"
-    ]
+    }
   }
 }

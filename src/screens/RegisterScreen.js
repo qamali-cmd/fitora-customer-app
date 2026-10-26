@@ -31,7 +31,7 @@ function PasswordField({ placeholder, value, onChangeText }) {
   const [visible, setVisible] = useState(false);
   return (
     <View style={styles.passwordRow}>
-      <TextInput
+      <TextInput placeholderTextColor="#9A9AA0"
         style={styles.passwordInput}
         placeholder={placeholder}
         value={value}
@@ -160,11 +160,11 @@ export default function RegisterScreen({ navigation }) {
         <Text style={styles.title}>Create an account</Text>
         <Text style={styles.subtitle}>Shopping for accessories is easy with Fitora Gear</Text>
 
-        <TextInput style={styles.input} placeholder="First name" value={firstName} onChangeText={setFirstName} />
-        <TextInput style={styles.input} placeholder="Middle name (optional)" value={middleName} onChangeText={setMiddleName} />
-        <TextInput style={styles.input} placeholder="Last name" value={lastName} onChangeText={setLastName} />
+        <TextInput placeholderTextColor="#9A9AA0" style={styles.input} placeholder="First name" value={firstName} onChangeText={setFirstName} />
+        <TextInput placeholderTextColor="#9A9AA0" style={styles.input} placeholder="Middle name (optional)" value={middleName} onChangeText={setMiddleName} />
+        <TextInput placeholderTextColor="#9A9AA0" style={styles.input} placeholder="Last name" value={lastName} onChangeText={setLastName} />
 
-        <TextInput
+        <TextInput placeholderTextColor="#9A9AA0"
           style={styles.input}
           placeholder="Username"
           value={username}
@@ -174,7 +174,7 @@ export default function RegisterScreen({ navigation }) {
         />
         {statusText ? <Text style={[styles.status, statusText.style]}>{statusText.text}</Text> : null}
 
-        <TextInput
+        <TextInput placeholderTextColor="#9A9AA0"
           style={styles.input}
           placeholder="Email (we will send a verification code)"
           value={email}
@@ -183,9 +183,9 @@ export default function RegisterScreen({ navigation }) {
           autoCapitalize="none"
           autoCorrect={false}
         />
-        <TextInput style={styles.input} placeholder="Phone number" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+        <TextInput placeholderTextColor="#9A9AA0" style={styles.input} placeholder="Phone number" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
         <BirthdayPicker value={birthday} onChange={setBirthday} placeholder="Birthday (tap to choose)" />
-        <TextInput style={styles.input} placeholder="Address (optional)" value={address} onChangeText={setAddress} />
+        <TextInput placeholderTextColor="#9A9AA0" style={styles.input} placeholder="Address (optional)" value={address} onChangeText={setAddress} />
 
         <PasswordField placeholder="Password" value={password} onChangeText={setPassword} />
         <Text style={styles.hint}>Min. 8 characters with uppercase, lowercase, a number, and a special character</Text>
@@ -213,12 +213,12 @@ const styles = StyleSheet.create({
   logo: { width: 72, height: 72, alignSelf: 'center', marginBottom: 8 },
   title: { fontSize: 26, fontWeight: 'bold', color: '#111111', textAlign: 'center' },
   subtitle: { fontSize: 14, color: '#888', textAlign: 'center', marginBottom: 24, marginTop: 4 },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 14, fontSize: 15, marginBottom: 12 },
+  input: { color: '#1F1F1F', backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 14, fontSize: 15, marginBottom: 12 },
   passwordRow: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
     borderWidth: 1, borderColor: '#ddd', borderRadius: 8, marginBottom: 6,
   },
-  passwordInput: { flex: 1, padding: 14, fontSize: 15 },
+  passwordInput: { color: '#1F1F1F', flex: 1, padding: 14, fontSize: 15 },
   eyeButton: { paddingHorizontal: 14 },
   eyeIcon: { fontSize: 18 },
   hint: { fontSize: 11, color: '#888', marginBottom: 12 },

@@ -195,20 +195,20 @@ export default function EditProfileScreen() {
             <Text style={styles.sheetTitle}>{sheet === 'name' ? 'Name' : sheet === 'username' ? 'Username' : 'Phone'}</Text>
             {sheet === 'name' ? (
               <View>
-                <TextInput style={styles.input} placeholder="First name" value={first} onChangeText={setFirst} autoCapitalize="words" />
-                <TextInput style={styles.input} placeholder="Middle name (optional)" value={middle} onChangeText={setMiddle} autoCapitalize="words" />
-                <TextInput style={styles.input} placeholder="Last name" value={last} onChangeText={setLast} autoCapitalize="words" />
+                <TextInput placeholderTextColor="#9A9AA0" style={styles.input} placeholder="First name" value={first} onChangeText={setFirst} autoCapitalize="words" />
+                <TextInput placeholderTextColor="#9A9AA0" style={styles.input} placeholder="Middle name (optional)" value={middle} onChangeText={setMiddle} autoCapitalize="words" />
+                <TextInput placeholderTextColor="#9A9AA0" style={styles.input} placeholder="Last name" value={last} onChangeText={setLast} autoCapitalize="words" />
               </View>
             ) : null}
             {sheet === 'username' ? (
               <View>
-                <TextInput style={styles.input} placeholder="Username" value={username} onChangeText={setUsername} autoCapitalize="none" autoCorrect={false} />
+                <TextInput placeholderTextColor="#9A9AA0" style={styles.input} placeholder="Username" value={username} onChangeText={setUsername} autoCapitalize="none" autoCorrect={false} />
                 <Text style={styles.hint}>4 to 20 letters, numbers, dots or underscores.</Text>
               </View>
             ) : null}
             {sheet === 'phone' ? (
               <View>
-                <TextInput style={styles.input} placeholder="Phone number" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+                <TextInput placeholderTextColor="#9A9AA0" style={styles.input} placeholder="Phone number" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
                 <Text style={styles.hint}>Leave it empty to remove your phone number.</Text>
               </View>
             ) : null}

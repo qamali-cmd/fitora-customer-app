@@ -25,7 +25,7 @@ export default function PickerModal({ visible, title, items, loading, error, onS
         </View>
 
         {!loading && !error ? (
-          <TextInput
+          <TextInput placeholderTextColor="#9A9AA0"
             style={styles.search}
             placeholder="Search..."
             value={query}
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 18, fontWeight: '700', color: '#111111' },
   closeButton: { padding: 6 },
   close: { fontSize: 20, color: '#888' },
-  search: { marginHorizontal: 16, marginBottom: 8, backgroundColor: '#f4f5f7', borderRadius: 8, padding: 12, fontSize: 15 },
+  search: { color: '#1F1F1F', marginHorizontal: 16, marginBottom: 8, backgroundColor: '#f4f5f7', borderRadius: 8, padding: 12, fontSize: 15 },
   row: { paddingVertical: 14, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
   rowText: { fontSize: 15, color: '#111111' },
   empty: { textAlign: 'center', color: '#888', marginTop: 40 },

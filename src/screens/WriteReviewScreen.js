@@ -87,7 +87,7 @@ export default function WriteReviewScreen({ navigation, route }) {
       <Text style={styles.ratingWord}>{RATING_WORDS[rating - 1]}</Text>
 
       <Text style={styles.label}>Share more about this product (optional)</Text>
-      <TextInput
+      <TextInput placeholderTextColor="#9A9AA0"
         style={styles.input}
         value={comment}
         onChangeText={setComment}
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   ratingWord: { textAlign: 'center', fontSize: 14, fontWeight: '600', color: '#111111', marginTop: 2, marginBottom: 20 },
   label: { fontSize: 13, fontWeight: '600', color: '#111111', marginBottom: 6, marginTop: 6 },
   hint: { fontSize: 12, color: '#888', marginBottom: 10 },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 12, fontSize: 14, minHeight: 100, textAlignVertical: 'top' },
+  input: { color: '#1F1F1F', backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 12, fontSize: 14, minHeight: 100, textAlignVertical: 'top' },
   counter: { textAlign: 'right', fontSize: 11, color: '#999', marginTop: 4, marginBottom: 8 },
   pickRow: { flexDirection: 'row', gap: 10 },
   pickButton: { flex: 1, borderWidth: 1, borderColor: PRIMARY, backgroundColor: '#fff', borderRadius: 8, paddingVertical: 12, alignItems: 'center' },

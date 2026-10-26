@@ -209,10 +209,10 @@ export default function AccountScreen({ navigation }) {
         ) : (
           <>
             <Text style={styles.cardTitle}>Edit details</Text>
-            <TextInput style={styles.input} placeholder="First name" value={firstName} onChangeText={setFirstName} />
-            <TextInput style={styles.input} placeholder="Middle name (optional)" value={middleName} onChangeText={setMiddleName} />
-            <TextInput style={styles.input} placeholder="Last name" value={lastName} onChangeText={setLastName} />
-            <TextInput
+            <TextInput placeholderTextColor="#9A9AA0" style={styles.input} placeholder="First name" value={firstName} onChangeText={setFirstName} />
+            <TextInput placeholderTextColor="#9A9AA0" style={styles.input} placeholder="Middle name (optional)" value={middleName} onChangeText={setMiddleName} />
+            <TextInput placeholderTextColor="#9A9AA0" style={styles.input} placeholder="Last name" value={lastName} onChangeText={setLastName} />
+            <TextInput placeholderTextColor="#9A9AA0"
               style={styles.input}
               placeholder="Username (4-20: letters, numbers, . _)"
               value={username}
@@ -220,8 +220,8 @@ export default function AccountScreen({ navigation }) {
               autoCapitalize="none"
               autoCorrect={false}
             />
-            <TextInput style={styles.input} placeholder="Phone number" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
-            <TextInput style={styles.input} placeholder="Address" value={address} onChangeText={setAddress} />
+            <TextInput placeholderTextColor="#9A9AA0" style={styles.input} placeholder="Phone number" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+            <TextInput placeholderTextColor="#9A9AA0" style={styles.input} placeholder="Address" value={address} onChangeText={setAddress} />
             <BirthdayPicker value={birthday} onChange={setBirthday} placeholder="Birthday (tap to choose)" />
             <View style={styles.editActions}>
               <TouchableOpacity style={styles.cancelButton} onPress={() => setEditing(false)}>
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
   editLink: { color: PRIMARY, fontSize: 14, fontWeight: '600' },
   fieldLabel: { fontSize: 12, color: '#888', marginTop: 12 },
   fieldValue: { fontSize: 15, color: '#111111', marginTop: 2 },
-  input: {
+  input: { color: '#1F1F1F',
     backgroundColor: '#f8f8fa', borderWidth: 1, borderColor: '#ddd', borderRadius: 8,
     padding: 12, marginTop: 10, fontSize: 14,
   },

@@ -7,6 +7,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator, Image,
   FlatList, Dimensions, Modal, Linking, Platform, StatusBar,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import API from '../api/config';
 import { useCart } from '../context/CartContext';
 import { COLORS, peso } from '../theme';
@@ -72,6 +73,7 @@ export function ReviewCard({ review, onOpenImage, onOpenVideo }) {
 }
 
 export default function ProductDetailScreen({ route, navigation }) {
+  const insets = useSafeAreaInsets(); // ang taas ng navigation bar ng telepono (para hindi matakpan ang bar sa ilalim)
   const { product: given } = route.params;
   const { items, addToCart, itemCount } = useCart();
   const [product, setProduct] = useState(given);
@@ -155,7 +157,7 @@ export default function ProductDetailScreen({ route, navigation }) {
 
   return (
     <View style={styles.screen}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 110 }} scrollEventThrottle={16} onScroll={(e) => setSolidTop(e.nativeEvent.contentOffset.y > GALLERY - 110)}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 110 + insets.bottom }} scrollEventThrottle={16} onScroll={(e) => setSolidTop(e.nativeEvent.contentOffset.y > GALLERY - 110)}>
         {/* ---------- the photos ---------- */}
         <View style={styles.gallery}>
           {photos.length > 0 ? (
@@ -314,7 +316,7 @@ export default function ProductDetailScreen({ route, navigation }) {
       </View>
 
       {/* ---------- the bar at the bottom ---------- */}
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { paddingBottom: Math.max(Platform.OS === 'ios' ? 26 : 12, insets.bottom + 8) }]}>
         <TouchableOpacity style={styles.cartButton} onPress={() => navigation.navigate('Cart')} accessibilityLabel="Cart">
           <Icon name="cart-outline" size={26} color={COLORS.primary} />
           {itemCount > 0 ? <View style={styles.badge}><Text style={styles.badgeText}>{itemCount > 99 ? '99+' : itemCount}</Text></View> : null}
@@ -329,7 +331,7 @@ export default function ProductDetailScreen({ route, navigation }) {
       <Modal visible={sheetOpen} transparent animationType="slide" onRequestClose={() => setSheetOpen(false)}>
         <View style={styles.overlay}>
           <TouchableOpacity style={styles.overlayTop} activeOpacity={1} onPress={() => setSheetOpen(false)} accessibilityLabel="Close" />
-          <View style={styles.sheet}>
+          <View style={[styles.sheet, { paddingBottom: Math.max(24, insets.bottom + 14) }]}>
             <View style={styles.sheetHead}>
               {photos[0] ? <Image source={{ uri: resizePhoto(photos[0], 'c_fill,w_200,h_200,q_auto') }} style={styles.sheetThumb} /> : <View style={[styles.sheetThumb, styles.sheetThumbEmpty]}><Icon name="image-outline" size={26} color={COLORS.primary} /></View>}
               <View style={{ flex: 1, marginLeft: 12 }}>

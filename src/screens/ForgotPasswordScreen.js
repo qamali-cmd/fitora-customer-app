@@ -20,7 +20,7 @@ function PasswordField({ placeholder, value, onChangeText }) {
   const [visible, setVisible] = useState(false);
   return (
     <View style={styles.passwordRow}>
-      <TextInput
+      <TextInput placeholderTextColor="#9A9AA0"
         style={styles.passwordInput}
         placeholder={placeholder}
         value={value}
@@ -124,7 +124,7 @@ export default function ForgotPasswordScreen({ navigation }) {
             <Text style={styles.title}>Forgot password?</Text>
             <Text style={styles.subtitle}>Type your email or username. We will send a 6-digit code to the email of your account.</Text>
 
-            <TextInput
+            <TextInput placeholderTextColor="#9A9AA0"
               style={styles.input}
               placeholder="Email or username"
               value={identifier}
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   icon: { fontSize: 44, textAlign: 'center', marginBottom: 8 },
   title: { fontSize: 26, fontWeight: 'bold', color: '#111111', textAlign: 'center' },
   subtitle: { fontSize: 14, color: '#666', textAlign: 'center', marginTop: 8, marginBottom: 22 },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 14, fontSize: 15, marginBottom: 12 },
+  input: { color: '#1F1F1F', backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 14, fontSize: 15, marginBottom: 12 },
   codeInput: {
     backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 10,
     fontSize: 32, letterSpacing: 10, fontWeight: 'bold', color: '#111111', paddingVertical: 14, marginBottom: 14,
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
     borderWidth: 1, borderColor: '#ddd', borderRadius: 8, marginBottom: 12,
   },
-  passwordInput: { flex: 1, padding: 14, fontSize: 15 },
+  passwordInput: { color: '#1F1F1F', flex: 1, padding: 14, fontSize: 15 },
   eyeButton: { paddingHorizontal: 14 },
   eyeIcon: { fontSize: 18 },
   rules: { fontSize: 12, color: '#888', marginBottom: 12 },

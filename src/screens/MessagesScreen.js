@@ -4,6 +4,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, StatusBar } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import API from '../api/config';
 import { request } from '../api/http';
 import { useAuth } from '../context/AuthContext';
@@ -40,6 +41,7 @@ export function buildRows(messages, now = new Date()) {
 const timeText = (iso) => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); };
 
 export default function MessagesScreen({ navigation }) {
+  const insets = useSafeAreaInsets(); // ang taas ng navigation bar ng telepono (para hindi matakpan ang lugar ng pag-type)
   const { token } = useAuth();
   const { refreshUnread } = useMessages();
   const [messages, setMessages] = useState([]);
@@ -148,7 +150,7 @@ export default function MessagesScreen({ navigation }) {
         />
       )}
 
-      <View style={styles.composer}>
+      <View style={[styles.composer, { paddingBottom: Math.max(Platform.OS === 'ios' ? 22 : 8, insets.bottom + 8) }]}>
         <TextInput
           style={styles.input}
           placeholder="Type a message..."

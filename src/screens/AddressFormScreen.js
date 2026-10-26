@@ -144,22 +144,22 @@ export default function AddressFormScreen({ navigation, route }) {
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.section}>Contact</Text>
         <Text style={styles.label}>Recipient name</Text>
-        <TextInput style={styles.input} value={recipient} onChangeText={setRecipient} placeholder="Full name of the person who will receive the order" />
+        <TextInput placeholderTextColor="#9A9AA0" style={styles.input} value={recipient} onChangeText={setRecipient} placeholder="Full name of the person who will receive the order" />
         <Text style={styles.label}>Phone number</Text>
-        <TextInput style={styles.input} value={phone} onChangeText={setPhone} placeholder="09XX XXX XXXX" keyboardType="phone-pad" />
+        <TextInput placeholderTextColor="#9A9AA0" style={styles.input} value={phone} onChangeText={setPhone} placeholder="09XX XXX XXXX" keyboardType="phone-pad" />
 
         <Text style={styles.section}>Address</Text>
         {manual ? (
           <View>
             <Text style={styles.notice}>Type your location exactly as it appears on your address.</Text>
             <Text style={styles.label}>Region</Text>
-            <TextInput style={styles.input} value={region ? region.name : ''} onChangeText={(t) => setRegion({ code: null, name: t })} placeholder="e.g. CALABARZON" />
+            <TextInput placeholderTextColor="#9A9AA0" style={styles.input} value={region ? region.name : ''} onChangeText={(t) => setRegion({ code: null, name: t })} placeholder="e.g. CALABARZON" />
             <Text style={styles.label}>Province</Text>
-            <TextInput style={styles.input} value={province ? province.name : ''} onChangeText={(t) => setProvince({ code: null, name: t })} placeholder="e.g. Quezon" />
+            <TextInput placeholderTextColor="#9A9AA0" style={styles.input} value={province ? province.name : ''} onChangeText={(t) => setProvince({ code: null, name: t })} placeholder="e.g. Quezon" />
             <Text style={styles.label}>City or municipality</Text>
-            <TextInput style={styles.input} value={city ? city.name : ''} onChangeText={(t) => setCity({ code: null, name: t })} placeholder="e.g. Lucena City" />
+            <TextInput placeholderTextColor="#9A9AA0" style={styles.input} value={city ? city.name : ''} onChangeText={(t) => setCity({ code: null, name: t })} placeholder="e.g. Lucena City" />
             <Text style={styles.label}>Barangay</Text>
-            <TextInput style={styles.input} value={barangay ? barangay.name : ''} onChangeText={(t) => setBarangay({ code: null, name: t })} placeholder="e.g. Ilayang Dupay" />
+            <TextInput placeholderTextColor="#9A9AA0" style={styles.input} value={barangay ? barangay.name : ''} onChangeText={(t) => setBarangay({ code: null, name: t })} placeholder="e.g. Ilayang Dupay" />
             <TouchableOpacity onPress={() => { setManual(false); setRegion(null); setProvince(null); setCity(null); setBarangay(null); }}>
               <Text style={styles.link}>Choose from the list instead</Text>
             </TouchableOpacity>
@@ -177,11 +177,11 @@ export default function AddressFormScreen({ navigation, route }) {
         )}
 
         <Text style={styles.label}>House number, street, or building</Text>
-        <TextInput style={styles.input} value={street} onChangeText={setStreet} placeholder="e.g. 12 Rizal Street, Unit 3B" />
+        <TextInput placeholderTextColor="#9A9AA0" style={styles.input} value={street} onChangeText={setStreet} placeholder="e.g. 12 Rizal Street, Unit 3B" />
         <Text style={styles.label}>ZIP code</Text>
-        <TextInput style={styles.input} value={zip} onChangeText={(t) => setZip(t.replace(/\D/g, '').slice(0, 4))} placeholder="4 digits" keyboardType="number-pad" maxLength={4} />
+        <TextInput placeholderTextColor="#9A9AA0" style={styles.input} value={zip} onChangeText={(t) => setZip(t.replace(/\D/g, '').slice(0, 4))} placeholder="4 digits" keyboardType="number-pad" maxLength={4} />
         <Text style={styles.label}>Landmark (optional)</Text>
-        <TextInput style={styles.input} value={landmark} onChangeText={setLandmark} placeholder="e.g. Beside the church, blue gate" />
+        <TextInput placeholderTextColor="#9A9AA0" style={styles.input} value={landmark} onChangeText={setLandmark} placeholder="e.g. Beside the church, blue gate" />
 
         <Text style={styles.section}>Label as</Text>
         <View style={styles.chips}>
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   content: { padding: 18, paddingBottom: 50 },
   section: { fontSize: 15, fontWeight: '700', color: '#111111', marginTop: 18, marginBottom: 4 },
   label: { fontSize: 12, color: '#666', marginTop: 12, marginBottom: 5 },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 12, fontSize: 15 },
+  input: { color: '#1F1F1F', backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 12, fontSize: 15 },
   select: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 13 },
   selectDisabled: { opacity: 0.5 },
   selectText: { flex: 1, fontSize: 15, color: '#111111' },
