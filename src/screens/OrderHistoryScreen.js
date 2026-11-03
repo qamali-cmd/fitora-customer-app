@@ -13,6 +13,7 @@ import Icon from '../components/Icon';
 import { thumb } from '../utils/productUtils';
 import { FILTERS, matchesFilter, countByFilter, statusInfo, paymentInfo, isAwaitingPayment } from '../utils/orderUtils';
 import { payForOrder } from '../utils/payOrder';
+import { canRequestRefund, refundStatusInfo } from '../utils/refundUtils';
 
 const SHOWN_ITEMS = 2; // the card shows the first 2 items, and "+ N more items" for the rest
 const dateText = (iso) => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); };
@@ -46,7 +47,7 @@ function ItemRow({ item }) {
   );
 }
 
-function OrderCard({ order, busy, onOpen, onPay, onBuyAgain }) {
+function OrderCard({ order, busy, onOpen, onPay, onBuyAgain, onRefund }) {
   const items = order.items || [];
   const status = statusInfo(order);
   const payment = paymentInfo(order);
@@ -63,6 +64,9 @@ function OrderCard({ order, busy, onOpen, onPay, onBuyAgain }) {
     buttons.push({ key: 'track', label: 'Track Order', icon: 'location-outline', primary: true, onPress: onOpen });
   } else if (order.status === 'completed') {
     if (items.length > 0) buttons.push({ key: 'again', label: busy === 'again' ? 'Adding...' : 'Buy Again', icon: 'cart-outline', onPress: onBuyAgain, disabled: !!busy });
+    // a refund: ask for it (only for 7 days after the order was received), or see the answer of the shop
+    if (order.refund_request_status) buttons.push({ key: 'refund', label: 'Refund status', icon: 'wallet-outline', onPress: onRefund });
+    else if (canRequestRefund(order)) buttons.push({ key: 'refund', label: 'Request refund', icon: 'wallet-outline', onPress: onRefund });
     buttons.push({ key: 'rate', label: 'Rate', icon: 'star', primary: true, onPress: onOpen });
   } else if (order.status === 'cancelled') {
     buttons.push({ key: 'details', label: 'Details', icon: 'receipt-outline', onPress: onOpen });
@@ -101,6 +105,10 @@ function OrderCard({ order, busy, onOpen, onPay, onBuyAgain }) {
         </View>
         <Text style={styles.date}>{dateText(order.order_date)}</Text>
       </View>
+
+      {order.refund_request_status ? (
+        <View style={styles.refundRow}><Tag icon={refundStatusInfo(order.refund_request_status, order).icon} label={refundStatusInfo(order.refund_request_status, order).label} tone={refundStatusInfo(order.refund_request_status, order).tone} /></View>
+      ) : null}
 
       {order.status === 'shipped' && (order.courier || order.tracking_number) ? (
         <View style={styles.tracking}>
@@ -264,6 +272,7 @@ export default function OrderHistoryScreen({ navigation, route }) {
               onOpen={() => open(item)}
               onPay={() => pay(item)}
               onBuyAgain={() => buyAgain(item)}
+              onRefund={() => navigation.navigate('RefundRequest', { orderId: item.order_id })}
             />
           )}
           ListEmptyComponent={
@@ -328,8 +337,9 @@ const styles = StyleSheet.create({
   totalCount: { fontSize: 12, color: COLORS.muted },
   totalLabel: { fontSize: 13, color: COLORS.text },
   totalValue: { fontSize: 17, fontWeight: '800', color: COLORS.primary },
-  buttons: { flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 14, paddingTop: 12, paddingBottom: 14 },
-  button: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 36, paddingHorizontal: 16, borderRadius: 18, borderWidth: 1.5, borderColor: COLORS.primary, marginLeft: 8 },
+  refundRow: { flexDirection: 'row', paddingHorizontal: 14, paddingBottom: 8 },
+  buttons: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', paddingHorizontal: 14, paddingTop: 8, paddingBottom: 12 },
+  button: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 36, paddingHorizontal: 16, borderRadius: 18, borderWidth: 1.5, borderColor: COLORS.primary, marginLeft: 8, marginTop: 6 },
   buttonPrimary: { backgroundColor: COLORS.primary },
   buttonOff: { opacity: 0.55 },
   buttonText: { fontSize: 13, fontWeight: '800', color: COLORS.primary, marginLeft: 6 },

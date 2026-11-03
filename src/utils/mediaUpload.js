@@ -1,6 +1,8 @@
 // src/utils/mediaUpload.js
 // Picks photos and a video from the phone gallery and uploads them to Cloudinary (for product reviews).
 
+import { Platform } from 'react-native';
+
 const CLOUDINARY_CLOUD_NAME = 'roit6yup';
 const CLOUDINARY_UPLOAD_PRESET = 'IMAGES';
 
@@ -82,17 +84,27 @@ export async function uploadReviewMedia(item, onProgress) {
   const name = asset.fileName || (isVideo ? 'review.mp4' : 'review.jpg');
   const address = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${isVideo ? 'video' : 'image'}/upload`;
 
-  const makeForm = (file) => {
+  const makeForm = (file, fileName) => {
     const form = new FormData();
-    form.append('file', file);
+    if (fileName) form.append('file', file, fileName);
+    else form.append('file', file);
     form.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
     return form;
   };
-  const attempts = [
-    async () => makeForm({ uri: item.uri, type: mimeType, name }),
-    async () => makeForm({ uri: item.uri, type: mimeType, name }),
-    async () => makeForm(await (await fetch(item.uri)).blob()),
-  ];
+  const readFile = async () => (await fetch(item.uri)).blob();
+  // On a phone, the file is sent as { uri, type, name }. A web browser does not understand that (Cloudinary then says
+  // "unsupported source: URL [object Object]"), so in the browser the real file is read and sent.
+  const attempts = Platform.OS === 'web'
+    ? [
+        async () => makeForm(await readFile(), name),
+        async () => makeForm(await readFile(), name),
+        async () => makeForm(await readFile(), name),
+      ]
+    : [
+        async () => makeForm({ uri: item.uri, type: mimeType, name }),
+        async () => makeForm({ uri: item.uri, type: mimeType, name }),
+        async () => makeForm(await readFile()),
+      ];
 
   let lastError = new Error('unknown problem');
   for (let i = 0; i < attempts.length; i++) {

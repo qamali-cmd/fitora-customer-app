@@ -61,7 +61,7 @@ export default function NotificationsScreen({ navigation }) {
               style={[styles.card, isNew && styles.cardNew]}
               activeOpacity={0.85}
               accessibilityLabel={info.title}
-              onPress={() => navigation.navigate('Orders', { screen: 'OrderDetail', params: { orderId: item.order_id }, initial: false })}
+              onPress={() => navigation.navigate('Orders', item.status === 'completed' && item.refund_request_status ? { screen: 'RefundRequest', params: { orderId: item.order_id }, initial: false } : { screen: 'OrderDetail', params: { orderId: item.order_id }, initial: false })}
             >
               <View style={[styles.iconCircle, { backgroundColor: tone.bg }]}>
                 <Icon name={info.icon} size={24} color={tone.fg} />

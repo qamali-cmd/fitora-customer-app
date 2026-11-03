@@ -40,6 +40,8 @@ export function countByFilter(orders) {
 // The "state" of an order that we remember: its status, plus a declined cancellation request
 export function orderStateKey(order) {
   let key = order.status === 'processing' && order.cancel_request_status === 'rejected' ? 'processing:rejected' : order.status;
+  // a refund request moving forward (asked, approved, refunded, declined) is news for the customer too
+  if (order.status === 'completed' && order.refund_request_status) key += ':refund-' + order.refund_request_status;
   // a refund moving forward is news for the customer too
   if (order.status === 'cancelled' && (order.payment_status === 'refund_pending' || order.payment_status === 'refunded')) key += ':' + order.payment_status;
   return key;
@@ -57,6 +59,19 @@ export function computeUnreadIds(orders, seen) {
 // The message shown in Notifications for the current status of an order
 export function notificationFor(order) {
   const id = order.order_id;
+  // the refund request of the customer (after the order was received) is the newest news of that order
+  if (order.status === 'completed' && order.refund_request_status) {
+    switch (order.refund_request_status) {
+      case 'approved':
+        return { icon: 'checkmark-circle', tone: 'green', title: 'Refund approved', text: `The shop approved your refund request for order #${id}.${order.payment_method === 'cod' ? ' The shop will message you to ask where to send the money.' : ' The money will be sent to your GCash account.'}` };
+      case 'refunded':
+        return { icon: 'wallet-outline', tone: 'green', title: 'Refund sent', text: `The shop sent your refund for order #${id}.` };
+      case 'rejected':
+        return { icon: 'close-circle-outline', tone: 'red', title: 'Refund request declined', text: `The shop declined your refund request for order #${id}. Tap to see the reason.` };
+      default:
+        return { icon: 'time-outline', tone: 'amber', title: 'Refund request sent', text: `The shop is reviewing your refund request for order #${id}.` };
+    }
+  }
   switch (order.status) {
     case 'processing':
       if (order.cancel_request_status === 'rejected') {
