@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { useMessages } from '../context/MessageContext';
 import { COLORS } from '../theme';
 import Icon from '../components/Icon';
+import { thumb } from '../utils/productUtils';
 
 const POLL_MS = 8000;
 const MAX = 1000;
@@ -38,11 +39,33 @@ export function buildRows(messages, now = new Date()) {
   return rows;
 }
 
+// the first letters of a name (for the small circle when there is no photo)
+export function initialOf(name) {
+  const words = String(name || '').trim().split(/\s+/).filter(Boolean);
+  return words.length ? words.slice(0, 2).map((w) => w[0]).join('').toUpperCase() : '?';
+}
+
+// who wrote a message: the customer ("You"), or the person of the shop who answered (the name of the admin, or "Fitora Gear")
+export function senderInfo(message, customer) {
+  if (message.sender === 'customer') {
+    return { mine: true, name: 'You', label: '', initial: initialOf(customer && customer.fullName), photo: (customer && customer.profilePhoto) || null };
+  }
+  const name = (message.admin_name && String(message.admin_name).trim()) || 'Fitora Gear';
+  return { mine: false, name, label: 'Shop', initial: initialOf(name), photo: null };
+}
+
+// the small round picture next to a message: the logo for the shop, the photo or the letters of the customer
+function Avatar({ uri, initial, logo }) {
+  if (logo) return <Image source={require('../../assets/logo.png')} style={styles.avatarImage} />;
+  if (uri) return <Image source={{ uri: thumb(uri, 100) }} style={styles.avatarImage} />;
+  return <View style={styles.avatarInitial}><Text style={styles.avatarInitialText}>{initial}</Text></View>;
+}
+
 const timeText = (iso) => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); };
 
 export default function MessagesScreen({ navigation }) {
   const insets = useSafeAreaInsets(); // ang taas ng navigation bar ng telepono (para hindi matakpan ang lugar ng pag-type)
-  const { token } = useAuth();
+  const { token, customer } = useAuth();
   const { refreshUnread } = useMessages();
   const [messages, setMessages] = useState([]);
   const [status, setStatus] = useState('loading'); // loading | ready | error
@@ -127,14 +150,23 @@ export default function MessagesScreen({ navigation }) {
           keyboardShouldPersistTaps="handled"
           renderItem={({ item }) => item.type === 'day' ? (
             <View style={styles.dayWrap}><Text style={styles.day}>{item.label}</Text></View>
-          ) : (
-            <View style={[styles.bubbleRow, item.message.sender === 'customer' ? styles.rowMine : styles.rowShop]}>
-              <View style={[styles.bubble, item.message.sender === 'customer' ? styles.bubbleMine : styles.bubbleShop]}>
-                <Text style={[styles.bubbleText, item.message.sender === 'customer' && styles.bubbleTextMine]}>{item.message.body}</Text>
-                <Text style={[styles.time, item.message.sender === 'customer' && styles.timeMine]}>{timeText(item.message.created_at)}</Text>
+          ) : (() => {
+            const info = senderInfo(item.message, customer);
+            return (
+              <View style={[styles.bubbleRow, info.mine ? styles.rowMine : styles.rowShop]}>
+                {!info.mine ? <Avatar logo /> : null}
+                <View style={[styles.bubble, info.mine ? styles.bubbleMine : styles.bubbleShop]}>
+                  <View style={styles.whoRow}>
+                    <Text style={[styles.whoName, info.mine && styles.whoNameMine]} numberOfLines={1}>{info.name}</Text>
+                    {info.label ? <View style={styles.shopTag}><Text style={styles.shopTagText}>{info.label}</Text></View> : null}
+                  </View>
+                  <Text style={[styles.bubbleText, info.mine && styles.bubbleTextMine]}>{item.message.body}</Text>
+                  <Text style={[styles.time, info.mine && styles.timeMine]}>{timeText(item.message.created_at)}</Text>
+                </View>
+                {info.mine ? <Avatar uri={info.photo} initial={info.initial} /> : null}
               </View>
-            </View>
-          )}
+            );
+          })()}
           ListEmptyComponent={
             <View style={styles.empty}>
               <View style={styles.emptyCircle}><Icon name="chatbubble-ellipses-outline" size={44} color={COLORS.primary} /></View>
@@ -182,14 +214,22 @@ const styles = StyleSheet.create({
   list: { padding: 12, paddingBottom: 16, flexGrow: 1 },
   dayWrap: { alignItems: 'center', marginVertical: 10 },
   day: { fontSize: 11, fontWeight: '700', color: COLORS.muted, backgroundColor: '#ebe7ea', borderRadius: 10, paddingHorizontal: 12, paddingVertical: 3, overflow: 'hidden' },
-  bubbleRow: { flexDirection: 'row', marginBottom: 6 },
+  bubbleRow: { flexDirection: 'row', alignItems: 'flex-end', marginBottom: 8 },
   rowMine: { justifyContent: 'flex-end' },
   rowShop: { justifyContent: 'flex-start' },
-  bubble: { maxWidth: '80%', borderRadius: 18, paddingHorizontal: 13, paddingTop: 9, paddingBottom: 6 },
+  bubble: { maxWidth: '76%', flexShrink: 1, borderRadius: 18, paddingHorizontal: 13, paddingTop: 9, paddingBottom: 6 },
   bubbleMine: { backgroundColor: COLORS.primary, borderBottomRightRadius: 5 },
   bubbleShop: { backgroundColor: '#fff', borderBottomLeftRadius: 5, borderWidth: 1, borderColor: '#efe4ea' },
   bubbleText: { fontSize: 15, lineHeight: 21, color: COLORS.text },
   bubbleTextMine: { color: '#fff' },
+  avatarImage: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#fff', marginHorizontal: 6, borderWidth: 1, borderColor: '#efe4ea' },
+  avatarInitial: { width: 32, height: 32, borderRadius: 16, backgroundColor: COLORS.primarySoft, alignItems: 'center', justifyContent: 'center', marginHorizontal: 6 },
+  avatarInitialText: { fontSize: 12, fontWeight: '800', color: COLORS.primary },
+  whoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 2 },
+  whoName: { fontSize: 12, fontWeight: '800', color: COLORS.ink, flexShrink: 1 },
+  whoNameMine: { color: '#fff' },
+  shopTag: { marginLeft: 6, backgroundColor: COLORS.primarySoft, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 1 },
+  shopTagText: { fontSize: 9, fontWeight: '800', color: COLORS.primaryDark, textTransform: 'uppercase' },
   time: { fontSize: 10, color: COLORS.muted, marginTop: 3, alignSelf: 'flex-end' },
   timeMine: { color: 'rgba(255,255,255,0.8)' },
   empty: { alignItems: 'center', paddingTop: 40, paddingHorizontal: 20 },

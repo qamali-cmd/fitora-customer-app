@@ -2,17 +2,26 @@
 // The customer reviews the order, chooses a saved delivery address, and places the order.
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, ScrollView, Modal, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, ScrollView, Modal, Linking, Image } from 'react-native';
 import Icon from '../components/Icon';
 import { useFocusEffect } from '@react-navigation/native';
 import API from '../api/config';
 import { request } from '../api/http';
 import { useCart } from '../context/CartContext';
+import { thumb } from '../utils/productUtils';
 import { useAuth } from '../context/AuthContext';
 import { addressLines } from '../utils/addressUtils';
 import { appReturnLink, openCheckout } from '../utils/paymentBrowser';
 
 // The order summary: items, subtotal, shipping fee, shipping discount, and total
+// ang larawan ng produkto sa order summary
+function photoOf(product) {
+  if (product.image) return product.image;
+  const first = Array.isArray(product.images) ? product.images[0] : null;
+  if (!first) return null;
+  return typeof first === 'string' ? first : first.image_url || first.url || null;
+}
+
 export function OrderSummary({ items, total, quote, quoting, hasAddress, onChangeQuantity = () => {}, onRemove = () => {} }) {
   return (
     <View style={styles.summaryCard}>
@@ -22,6 +31,13 @@ export function OrderSummary({ items, total, quote, quoting, hasAddress, onChang
         const max = Number.isFinite(stock) ? Math.min(99, stock) : 99;
         return (
           <View key={i.product.product_id} style={styles.itemBlock}>
+            <View style={styles.itemWithPhoto}>
+              {photoOf(i.product) ? (
+                <Image source={{ uri: thumb(photoOf(i.product), 200) }} style={styles.itemPhoto} resizeMode="cover" />
+              ) : (
+                <View style={[styles.itemPhoto, styles.itemPhotoEmpty]} />
+              )}
+              <View style={styles.itemMain}>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryItemName} numberOfLines={2}>{i.product.product_name}</Text>
               <Text style={styles.summaryItemPrice}>₱{(i.product.price * i.quantity).toLocaleString()}</Text>
@@ -43,6 +59,8 @@ export function OrderSummary({ items, total, quote, quoting, hasAddress, onChang
               <TouchableOpacity onPress={() => onRemove(i.product.product_id)}>
                 <Text style={styles.removeText}>Remove</Text>
               </TouchableOpacity>
+            </View>
+              </View>
             </View>
           </View>
         );
@@ -474,6 +492,10 @@ const styles = StyleSheet.create({
   secondaryActionText: { color: PRIMARY, fontSize: 15, fontWeight: '600' },
   discountValue: { fontSize: 13, color: '#27ae60', fontWeight: '600' },
   tip: { fontSize: 12, color: '#888', marginTop: 2 },
+  itemWithPhoto: { flexDirection: 'row' },
+  itemMain: { flex: 1 },
+  itemPhoto: { width: 60, height: 60, borderRadius: 10, backgroundColor: '#f2f2f2', marginRight: 12 },
+  itemPhotoEmpty: { backgroundColor: '#FFE8F1' },
   summaryCard: { backgroundColor: '#fff', borderRadius: 10, padding: 16, marginBottom: 16 },
   summaryTitle: { fontSize: 14, fontWeight: '600', color: '#111111', marginBottom: 10 },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
